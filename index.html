@@ -9,29 +9,31 @@
     body { background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 12px; }
     .chat-container { width: 100%; max-width: 680px; height: 90vh; background: #161b22; border: 1px solid #30363d; border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5); }
     .chat-header { padding: 16px 20px; background: #0d1117; border-bottom: 1px solid #30363d; display: flex; align-items: center; gap: 12px; }
-    .ai-badge { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #1f6feb, #58a6ff); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; font-size: 0.95rem; }
+    .ai-badge { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #1f6feb, #58a6ff); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; font-size: 0.95rem; flex-shrink: 0; }
     .header-info h1 { font-size: 1.05rem; font-weight: 600; color: #f0f6fc; }
     .header-info p { font-size: 0.75rem; color: #8b949e; }
     .chat-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; scroll-behavior: smooth; }
     .msg-row { display: flex; width: 100%; }
     .msg-row.user-row { justify-content: flex-end; }
     .msg-row.bot-row { justify-content: flex-start; }
-    .msg { max-width: 85%; padding: 12px 16px; font-size: 0.92rem; line-height: 1.55; border-radius: 14px; word-break: break-word; }
+    .msg { max-width: 85%; padding: 12px 16px; font-size: 0.95rem; line-height: 1.6; border-radius: 14px; word-break: break-word; }
     .user { background: #1f6feb; color: #ffffff; border-bottom-right-radius: 4px; }
     .bot { background: #21262d; color: #e6edf3; border-bottom-left-radius: 4px; border: 1px solid #30363d; }
     
     /* Markdown Styles */
-    .msg pre { background: #0d1117; padding: 10px; border-radius: 6px; overflow-x: auto; margin: 8px 0; border: 1px solid #30363d; font-size: 0.85rem; }
-    .msg code { background: #0d1117; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.85rem; color: #79c0ff; }
-    .msg pre code { padding: 0; background: transparent; }
-    .msg strong { color: #f0f6fc; font-weight: 600; }
-    .msg ul { margin-left: 20px; margin-top: 6px; margin-bottom: 6px; }
+    .msg strong, .msg b { color: #ffffff !important; font-weight: 700 !important; }
+    .msg em, .msg i { font-style: italic; color: #d2a8ff; }
+    .msg code { background: #0d1117; padding: 2px 6px; border-radius: 4px; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.86rem; color: #79c0ff; border: 1px solid #30363d; }
+    .msg pre { background: #0d1117; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 8px 0; border: 1px solid #30363d; }
+    .msg pre code { padding: 0; background: transparent; border: none; }
+    .msg ul, .msg ol { margin: 6px 0 6px 20px; }
     .msg li { margin-bottom: 4px; }
+    .msg blockquote { border-left: 3px solid #58a6ff; padding-left: 10px; margin: 6px 0; color: #8b949e; }
 
     .chat-footer { padding: 14px 18px; background: #0d1117; border-top: 1px solid #30363d; display: flex; gap: 10px; }
-    input[type="text"] { flex: 1; background: #21262d; border: 1px solid #30363d; border-radius: 10px; padding: 12px 16px; color: #f0f6fc; font-size: 0.92rem; outline: none; transition: border-color 0.2s; }
+    input[type="text"] { flex: 1; background: #21262d; border: 1px solid #30363d; border-radius: 10px; padding: 12px 16px; color: #f0f6fc; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
     input[type="text"]:focus { border-color: #58a6ff; }
-    button { background: #1f6feb; color: #ffffff; border: none; border-radius: 10px; padding: 0 20px; font-size: 0.92rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    button { background: #1f6feb; color: #ffffff; border: none; border-radius: 10px; padding: 0 20px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
     button:hover { background: #388bfd; }
   </style>
 </head>
@@ -41,14 +43,12 @@
       <div class="ai-badge">A</div>
       <div class="header-info">
         <h1>ArchWise AI</h1>
-        <p>Scratch-built language model</p>
+        <p>Independent Assistant System</p>
       </div>
     </div>
     <div class="chat-body" id="chat">
       <div class="msg-row bot-row">
-        <div class="msg bot">
-          Hello! I am **ArchWise**, an AI assistant built from scratch. How can I help you today?
-        </div>
+        <div class="msg bot" id="initial-msg"></div>
       </div>
     </div>
     <div class="chat-footer">
@@ -58,23 +58,65 @@
   </div>
 
   <script>
-    function parseMarkdown(text) {
-      let escaped = text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+    function renderMarkdown(md) {
+      if (!md) return "";
 
-      escaped = escaped.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-      escaped = escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
-      escaped = escaped.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-      escaped = escaped.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-      escaped = escaped.replace(/(?:^|\n)-\s+(.*)/g, '<li>$1</li>');
-      if (escaped.includes('<li>')) {
-        escaped = escaped.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>');
-      }
-      escaped = escaped.replace(/\n/g, '<br>');
-      return escaped;
+      // Preserve Code Blocks
+      const codeBlocks = [];
+      md = md.replace(/```([\s\S]*?)```/g, function(match, code) {
+        codeBlocks.push(code);
+        return `__CODE_BLOCK_${codeBlocks.length - 1}__`;
+      });
+
+      // Preserve Inline Code
+      const inlineCodes = [];
+      md = md.replace(/`([^`]+)`/g, function(match, code) {
+        inlineCodes.push(code);
+        return `__INLINE_CODE_${inlineCodes.length - 1}__`;
+      });
+
+      // HTML Escape special characters
+      md = md.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+      // Headings
+      md = md.replace(/^### (.*$)/gim, '<b style="font-size:1.05rem;color:#58a6ff;">$1</b>');
+      md = md.replace(/^## (.*$)/gim, '<b style="font-size:1.1rem;color:#58a6ff;">$1</b>');
+      md = md.replace(/^# (.*$)/gim, '<b style="font-size:1.2rem;color:#58a6ff;">$1</b>');
+
+      // Bold (**text** or __text__)
+      md = md.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      md = md.replace(/__(.*?)__/g, '<strong>$1</strong>');
+
+      // Italics (*text* or _text_)
+      md = md.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+      md = md.replace(/_([^_\n]+)_/g, '<em>$1</em>');
+
+      // Unordered lists (- item or * item)
+      md = md.replace(/^\s*[-*]\s+(.*)$/gim, '<li>$1</li>');
+      md = md.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>');
+
+      // Line breaks
+      md = md.replace(/\n/g, '<br>');
+
+      // Restore Inline Code
+      inlineCodes.forEach((code, i) => {
+        const safe = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        md = md.replace(`__INLINE_CODE_${i}__`, `<code>${safe}</code>`);
+      });
+
+      // Restore Code Blocks
+      codeBlocks.forEach((code, i) => {
+        const safe = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        md = md.replace(`__CODE_BLOCK_${i}__`, `<pre><code>${safe}</code></pre>`);
+      });
+
+      return md;
     }
+
+    // Set rendered initial message
+    document.getElementById('initial-msg').innerHTML = renderMarkdown(
+      "Hello! I am **ArchWise**, an AI assistant built from scratch. How can I help you today?"
+    );
 
     const inputField = document.getElementById('userInput');
     inputField.addEventListener('keydown', function(event) {
@@ -91,7 +133,7 @@
       const chat = document.getElementById('chat');
       chat.innerHTML += `
         <div class="msg-row user-row">
-          <div class="msg user">${parseMarkdown(text)}</div>
+          <div class="msg user">${renderMarkdown(text)}</div>
         </div>`;
       inputField.value = '';
       chat.scrollTop = chat.scrollHeight;
@@ -105,7 +147,7 @@
         const data = await response.json();
         chat.innerHTML += `
           <div class="msg-row bot-row">
-            <div class="msg bot">${parseMarkdown(data.response)}</div>
+            <div class="msg bot">${renderMarkdown(data.response)}</div>
           </div>`;
       } catch (err) {
         chat.innerHTML += `
