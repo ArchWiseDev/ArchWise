@@ -297,3 +297,22 @@ what is an appeal to authority :: An **argument from authority** (ad verecundiam
 what is active listening in discourse :: **Active listening** involves giving complete attention to a speaker, synthesizing key points, and verifying understanding before formulating a reasoned response.
 how to write a conclusion :: An effective **conclusion** synthesizes the main arguments without introducing new evidence, demonstrates how points connect, and underscores the broader significance of the topic.
 what are discourse markers :: **Discourse markers** (e.g., *on the other hand*, *furthermore*, *nevertheless*) are words or phrases used to manage the flow, structure, and relationships between segments of discourse.
+what is morphology in linguistics :: **Morphology** is the study of word formation and structure, focusing on **morphemes**—the smallest meaningful units of language (e.g., roots, prefixes, and suffixes).
+what is a morpheme :: A **morpheme** is the smallest grammatical and meaningful unit in a language. Morphemes can be:
+- **Free**: Can stand alone as a word (*break*, *code*).
+- **Bound**: Must attach to another morpheme (*-able*, *un-*).
+what are greek and latin roots :: Greek and Latin roots form the structural foundation of vast technical and scientific English vocabulary:
+- **Chron** (Greek): Time (*chronological*, *synchronize*).
+- **Geo** (Greek): Earth (*geography*, *geology*).
+- **Dict** (Latin): Speak (*diction*, *predict*).
+- **Struct** (Latin): Build (*construct*, *structure*).
+what is an oxymoron vs an antithesis :: Distinction:
+- **Oxymoron**: A compact phrase pairing two directly contradictory words together (*"open secret"*).
+- **Antithesis**: A rhetorical device setting two contrasting ideas together in parallel structures within a complete sentence (*"Speech is silver, but silence is gold"*).
+what is anaphora :: **Anaphora** is the deliberate repetition of a word or phrase at the beginning of successive sentences, clauses, or poetic lines for emphasis and rhythm.
+what is epistrophe :: **Epistrophe** is the repetition of the same word or words at the end of successive clauses or sentences, creating a resonant concluding cadence.
+how to construct an argument :: A rigorous **argument** requires:
+1. **Claim**: The primary assertion or thesis being defended.
+2. **Evidence**: Empirical data, logical deduction, or verified observations supporting the claim.
+3. **Warrant**: The logical explanation connecting the evidence back to the claim.
+4. **Counter-rebuttal**: Anticipating and resolving competing perspectives.

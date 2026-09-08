@@ -19,6 +19,21 @@ STOPWORDS = {
     "of", "and", "or", "that", "this"
 }
 
+SYNONYMS = {
+    "fast": ["rapid", "swift", "quick"],
+    "slow": ["gradual", "unhurried", "sluggish"],
+    "big": ["large", "massive", "substantial"],
+    "small": ["compact", "tiny", "diminutive"],
+    "good": ["excellent", "favorable", "effective"],
+    "bad": ["flawed", "suboptimal", "deficient"],
+    "important": ["crucial", "essential", "vital"],
+    "difficult": ["complex", "challenging", "demanding"],
+    "easy": ["straightforward", "simple", "effortless"],
+    "help": ["assist", "support", "aid"],
+    "build": ["construct", "develop", "assemble"],
+    "learn": ["acquire", "grasp", "absorb"]
+}
+
 GRAMMAR_PATTERNS = [
     (r"\b(he|she|it)\s+go\b", r"\1 goes"),
     (r"\b(he|she|it)\s+dont\b", r"\1 doesn't"),
@@ -71,7 +86,7 @@ class ArchWiseEngine:
         self.doc_vectors = []
         self.last_query = ""
         self.assistant_fallbacks = [
-            "I haven't indexed that specific concept yet. You can ask me about grammar rules, discourse structure, science, or math!",
+            "I haven't indexed that specific concept yet. You can ask me about grammar, linguistics, writing tools, or mathematics!",
             "I'm not certain how to answer that with my current knowledge. Try rephrasing or asking for a grammatical explanation.",
             "That query falls outside my current baseline parameters, but I am continuously expanding my vocabulary."
         ]
@@ -90,6 +105,38 @@ class ArchWiseEngine:
                 else:
                     corrected.append(w)
         return [stem_word(w) for w in corrected if w not in STOPWORDS]
+
+    def _rephrase(self, text):
+        match = re.match(r"^rephrase:\s*(.*)", text, re.IGNORECASE)
+        if not match:
+            return None
+        target = match.group(1).strip()
+        words = re.findall(r"\b\w+\b|[^\w\s]", target)
+        rephrased_words = []
+        modified = False
+
+        for word in words:
+            lower = word.lower()
+            if lower in SYNONYMS:
+                replacement = random.choice(SYNONYMS[lower])
+                if word[0].isupper():
+                    replacement = replacement.capitalize()
+                rephrased_words.append(replacement)
+                modified = True
+            else:
+                rephrased_words.append(word)
+
+        reconstructed = ""
+        for token in rephrased_words:
+            if re.match(r"[^\w\s]", token):
+                reconstructed = reconstructed.rstrip() + token + " "
+            else:
+                reconstructed += token + " "
+
+        reconstructed = reconstructed.strip()
+        if not modified:
+            return f"**Original**: *\"{target}\"*\n\n**Rephrased**: *No direct synonym matches found in local lexicon, structure maintained.*"
+        return f"**Original**: *\"{target}\"*\n\n**Rephrased**: *\"{reconstructed}\"*"
 
     def _summarize(self, text):
         match = re.match(r"^summarize:\s*(.*)", text, re.IGNORECASE | re.DOTALL)
@@ -227,22 +274,27 @@ class ArchWiseEngine:
         self.doc_vectors = data["doc_vectors"]
 
     def generate(self, prompt):
-        # 1. Summarization check
+        # 1. Paraphrase generator check
+        rephrase_eval = self._rephrase(prompt)
+        if rephrase_eval:
+            return rephrase_eval
+
+        # 2. Summarization check
         summary = self._summarize(prompt)
         if summary:
             return summary
 
-        # 2. Grammar correction check
+        # 3. Grammar correction check
         grammar_eval = self._correct_grammar(prompt)
         if grammar_eval:
             return grammar_eval
 
-        # 3. Arithmetic evaluation check
+        # 4. Arithmetic evaluation check
         calc_result = self._try_arithmetic(prompt)
         if calc_result:
             return calc_result
 
-        # 4. Follow-up Context Resolution
+        # 5. Follow-up Context Resolution
         clean_input = prompt.strip().lower()
         if clean_input in FOLLOW_UP_TRIGGERS and self.last_query:
             tokens = self._tokenize(f"{self.last_query} details")
@@ -275,4 +327,4 @@ if __name__ == "__main__":
     engine = ArchWiseEngine()
     engine.train("corpus.txt")
     engine.save("model.json")
-    print(f"ArchWise v0.4 Compiled: Session contextual memory active across {len(engine.documents)} patterns.")
+    print(f"ArchWise v0.5 Compiled: Rephrase and morphological engine active across {len(engine.documents)} patterns.")
