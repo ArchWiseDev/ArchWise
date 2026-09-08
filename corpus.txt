@@ -236,3 +236,19 @@ what is an infinitive :: An **infinitive** is the base form of a verb typically 
 what is a gerund :: A **gerund** is a verb ending in *-ing* that functions grammatically as a noun (e.g., "*Coding* requires deep concentration").
 what is an idiom :: An **idiom** is an established phrase where the figurative meaning differs from literal definitions (e.g., *piece of cake*, *break the ice*, *hit the ground running*).
 what is figurative language :: **Figurative language** uses words outside their strict literal meanings to evoke comparisons, imagery, or emphasis (metaphors, similes, personification, hyperbole).
+how do i improve my english | how to learn english :: To master **English**:
+1. **Read actively**: Articles, technical docs, and classic literature to absorb vocabulary in context.
+2. **Write daily**: Practice writing concise summaries, essays, or code comments.
+3. **Study sentence mechanics**: Focus on subject-verb agreement, clause structure, and punctuation.
+4. **Listen and converse**: Practice conversational flow and listen to native cadences.
+what is a run on sentence :: A **run-on sentence** occurs when two or more independent clauses are joined improperly without appropriate punctuation or coordinating conjunctions (e.g., *"The model trained it finished quickly"* $\to$ corrected: *"The model trained, and it finished quickly"*).
+what is a sentence fragment :: A **sentence fragment** is an incomplete sentence that lacks either a subject, a verb, or a complete thought (e.g., *"Because the server was restarted"*).
+what is a transition word :: **Transition words** connect ideas and create logical flow between sentences and paragraphs:
+- **Addition**: *Furthermore, moreover, in addition*
+- **Contrast**: *However, on the other hand, conversely*
+- **Cause/Effect**: *Consequently, therefore, as a result*
+- **Sequence**: *First, subsequently, finally*
+what is vocabulary :: **Vocabulary** is the collection of words and terms known and used by a specific person, language, or field of knowledge.
+what are irregular verbs :: **Irregular verbs** do not follow the standard rule of adding *-ed* or *-d* to form their past tense and past participle (e.g., *begin/began/begun*, *go/went/gone*, *write/wrote/written*).
+can you explain english grammar :: English grammar is the set of structural rules dictating the composition of clauses, phrases, and words. Its core pillars are **parts of speech**, **syntax**, **tenses**, and **punctuation**.
+what is tone in writing :: **Tone** reflects the writer's attitude toward the subject matter or audience (e.g., *formal, technical, objective, casual, humorous*).

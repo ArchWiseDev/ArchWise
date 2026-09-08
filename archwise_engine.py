@@ -14,42 +14,69 @@ WORD_NUMBERS = {
 STOPWORDS = {
     "a", "an", "the", "in", "on", "at", "by", "for", "with",
     "about", "against", "between", "into", "through", "during",
-    "before", "after", "above", "below", "to", "from", "up", "down"
+    "before", "after", "above", "below", "to", "from", "up", "down",
+    "can", "you", "tell", "me", "please", "would", "could"
 }
 
 def stem_word(w):
-    # Lightweight rule-based suffix stemming
     suffixes = ("ing", "ly", "ed", "ous", "ies", "es", "s", "ment")
     for s in suffixes:
         if w.endswith(s) and len(w) > len(s) + 2:
             return w[:-len(s)]
     return w
 
+def levenshtein(s1, s2):
+    if len(s1) < len(s2):
+        return levenshtein(s2, s1)
+    if len(s2) == 0:
+        return len(s1)
+    previous_row = range(len(s2) + 1)
+    for i, c1 in enumerate(s1):
+        current_row = [i + 1]
+        for j, c2 in enumerate(s2):
+            insertions = previous_row[j + 1] + 1
+            deletions = current_row[j] + 1
+            substitutions = previous_row[j] + (c1 != c2)
+            current_row.append(min(insertions, deletions, substitutions))
+        previous_row = current_row
+    return previous_row[-1]
+
 class ArchWiseEngine:
     def __init__(self):
         self.documents = []
         self.responses = []
         self.vocab = {}
+        self.raw_vocab = set()
         self.idf = {}
         self.doc_vectors = []
         self.assistant_fallbacks = [
-            "I do not have enough trained data on that specific concept yet. Feel free to ask about grammar, computer science, or mathematics!",
-            "That query falls outside my current baseline parameters. Could you rephrase or try another subject?",
-            "I have not yet indexed those exact terms. I am continuously learning fundamental English and technical concepts."
+            "I haven't indexed that specific concept yet. You can ask me about English grammar, computer science, mathematics, or science!",
+            "I'm not certain how to answer that with my current training. Could you try rephrasing or asking about another topic?",
+            "That concept is outside my current knowledge base, but I am continuously learning."
         ]
 
     def _tokenize(self, text):
         clean = re.sub(r"[^a-zA-Z0-9\s]", " ", text.lower())
-        raw_tokens = [w for w in clean.split() if w and w not in STOPWORDS]
-        return [stem_word(w) for w in raw_tokens]
+        raw_tokens = [w for w in clean.split() if w]
+        corrected = []
+        for w in raw_tokens:
+            if w in self.raw_vocab or len(w) < 4:
+                corrected.append(w)
+            else:
+                # Fuzzy match typo correction
+                closest = min(self.raw_vocab, key=lambda target: levenshtein(w, target)) if self.raw_vocab else w
+                if levenshtein(w, closest) <= 2:
+                    corrected.append(closest)
+                else:
+                    corrected.append(w)
+        return [stem_word(w) for w in corrected if w not in STOPWORDS]
 
     def _try_arithmetic(self, text):
         norm = text.lower().replace("what's", "what is").replace("whats", "what is")
         tokens = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", norm).split() if w]
-        
         converted = [str(WORD_NUMBERS[t]) if t in WORD_NUMBERS else t for t in tokens]
         reconstructed = " ".join(converted)
-        
+
         match_add = re.search(r"(\d+)\s*(?:\+|\bplus\b)\s*(\d+)", reconstructed)
         if match_add:
             a, b = int(match_add.group(1)), int(match_add.group(2))
@@ -77,6 +104,7 @@ class ArchWiseEngine:
     def train(self, corpus_path="corpus.txt"):
         self.documents = []
         self.responses = []
+        self.raw_vocab = set()
 
         with open(corpus_path, "r", encoding="utf-8") as f:
             for line in f:
@@ -87,32 +115,33 @@ class ArchWiseEngine:
                 patterns = [p.strip() for p in patterns_part.split("|") if p.strip()]
                 reply = reply.strip().replace(r"\n", "\n")
                 for pat in patterns:
-                    tokens = self._tokenize(pat)
+                    clean_words = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", pat.lower()).split() if w]
+                    self.raw_vocab.update(clean_words)
+                    tokens = [stem_word(w) for w in clean_words if w not in STOPWORDS]
                     if tokens:
                         self.documents.append(tokens)
                         self.responses.append(reply)
 
         total_docs = len(self.documents)
         df = Counter()
-        all_words = set()
+        all_stems = set()
         for doc in self.documents:
-            unique_words = set(doc)
-            for w in unique_words:
+            for w in set(doc):
                 df[w] += 1
-                all_words.add(w)
+                all_stems.add(w)
 
-        self.vocab = {word: idx for idx, word in enumerate(sorted(list(all_words)))}
-        self.idf = {word: math.log((1.0 + total_docs) / (1.0 + df[word])) + 1.0 for word in self.vocab}
+        self.vocab = {stem: idx for idx, stem in enumerate(sorted(list(all_stems)))}
+        self.idf = {stem: math.log((1.0 + total_docs) / (1.0 + df[stem])) + 1.0 for stem in self.vocab}
         self.doc_vectors = [self._vectorize(doc) for doc in self.documents]
 
     def _vectorize(self, tokens):
         tf = Counter(tokens)
         vec = [0.0] * len(self.vocab)
-        for word, count in tf.items():
-            if word in self.vocab:
-                idx = self.vocab[word]
+        for stem, count in tf.items():
+            if stem in self.vocab:
+                idx = self.vocab[stem]
                 w_tf = 1.0 + math.log(count) if count > 0 else 0.0
-                vec[idx] = w_tf * self.idf[word]
+                vec[idx] = w_tf * self.idf[stem]
         norm = math.sqrt(sum(x * x for x in vec))
         if norm > 0:
             vec = [x / norm for x in vec]
@@ -124,6 +153,7 @@ class ArchWiseEngine:
     def save(self, filepath="model.json"):
         data = {
             "vocab": self.vocab,
+            "raw_vocab": list(self.raw_vocab),
             "idf": self.idf,
             "responses": self.responses,
             "doc_vectors": self.doc_vectors
@@ -135,6 +165,7 @@ class ArchWiseEngine:
         with open(filepath, "r", encoding="utf-8") as f:
             data = json.load(f)
         self.vocab = data["vocab"]
+        self.raw_vocab = set(data["raw_vocab"])
         self.idf = data["idf"]
         self.responses = data["responses"]
         self.doc_vectors = data["doc_vectors"]
@@ -160,7 +191,7 @@ class ArchWiseEngine:
                 best_score = sim
                 best_idx = i
 
-        if best_score < 0.22:
+        if best_score < 0.18:
             return random.choice(self.assistant_fallbacks)
 
         return self.responses[best_idx]
@@ -169,4 +200,4 @@ if __name__ == "__main__":
     engine = ArchWiseEngine()
     engine.train("corpus.txt")
     engine.save("model.json")
-    print(f"Training Complete! Indexed {len(engine.vocab)} stem tokens across {len(engine.documents)} training patterns.")
+    print(f"ArchWise Engine compiled. Indexed {len(engine.raw_vocab)} raw words and {len(engine.vocab)} stem dimensions across {len(engine.documents)} patterns.")
