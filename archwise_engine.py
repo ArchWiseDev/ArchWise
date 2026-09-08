@@ -1,6 +1,7 @@
 import re
 import math
 import json
+import random
 from collections import Counter
 
 class ArchWiseEngine:
@@ -10,6 +11,13 @@ class ArchWiseEngine:
         self.vocab = {}
         self.idf = {}
         self.doc_vectors = []
+        self.baby_confusions = [
+            "Ooh... what does that mean? My little brain doesn't know that word yet!",
+            "I heard you, but I'm still very small! Can you say it in tiny words?",
+            "*tilts head* That sounds big and complicated! Teach me more about it?",
+            "Babbles in data... I don't understand that yet, but I'm trying hard!",
+            "Is that a new toy or a new word? I want to learn it!"
+        ]
 
     def _tokenize(self, text):
         clean = re.sub(r"[^a-zA-Z0-9\s]", "", text.lower())
@@ -18,7 +26,6 @@ class ArchWiseEngine:
     def train(self, corpus_path="corpus.txt"):
         self.documents = []
         self.responses = []
-        raw_lines = []
 
         with open(corpus_path, "r", encoding="utf-8") as f:
             for line in f:
@@ -45,7 +52,6 @@ class ArchWiseEngine:
 
         self.vocab = {word: idx for idx, word in enumerate(sorted(list(all_words)))}
         self.idf = {word: math.log((1 + total_docs) / (1 + df[word])) + 1 for word in self.vocab}
-
         self.doc_vectors = [self._vectorize(doc) for doc in self.documents]
 
     def _vectorize(self, tokens):
@@ -84,11 +90,11 @@ class ArchWiseEngine:
     def generate(self, prompt):
         tokens = self._tokenize(prompt)
         if not tokens:
-            return "Please say something so I can understand."
+            return "Peekaboo! Say something to me!"
 
         query_vec = self._vectorize(tokens)
         if sum(query_vec) == 0:
-            return "I have not learned those words yet. You can train me by adding them to corpus.txt!"
+            return random.choice(self.baby_confusions)
 
         best_score = -1.0
         best_idx = -1
@@ -99,7 +105,7 @@ class ArchWiseEngine:
                 best_idx = i
 
         if best_score < 0.2:
-            return "I am not quite sure what you mean. Could you rephrase that?"
+            return random.choice(self.baby_confusions)
 
         return self.responses[best_idx]
 
@@ -107,4 +113,4 @@ if __name__ == "__main__":
     engine = ArchWiseEngine()
     engine.train("corpus.txt")
     engine.save("model.json")
-    print("ArchWise successfully trained and saved to model.json.")
+    print("ArchWise newborn brain initialized and saved.")
