@@ -271,3 +271,19 @@ what is an oxymoron vs paradox :: Distinction:
 - **Oxymoron**: A compact phrase pairing two contradictory terms together (*"deafening silence"*).
 - **Paradox**: A seemingly contradictory statement that reveals an underlying truth upon deeper inspection (*"The only constant is change"*).
 what is etymology :: **Etymology** is the scientific study of the origin, historical evolution, and semantic development of words.
+complement vs compliment | difference between complement and compliment :: Usage distinction:
+- **Complement**: Something that completes, balances, or enhances another entity (*"The front-end design complements the back-end engine"*).
+- **Compliment**: An expression of praise, admiration, or polite flattery (*"The user gave ArchWise a compliment"*).
+principal vs principle | difference between principal and principle :: Usage distinction:
+- **Principal**: Primary, foremost, or chief (*"The principal reason for training"*) or the initial amount of an investment.
+- **Principle**: A fundamental truth, doctrine, law, or ethical rule (*"First principles of computation"*).
+discrete vs discreet | difference between discrete and discreet :: Usage distinction:
+- **Discrete**: Distinct, detached, or separate units (*"Discrete mathematics deals with distinct values"*).
+- **Discreet**: Careful, circumspect, and unobtrusive (*"The process maintained a discreet presence"*).
+allusion vs illusion :: Usage distinction:
+- **Allusion**: An indirect or passing reference to an external event, figure, or text (*"The naming made an allusion to architecture"*).
+- **Illusion**: A false impression, deceptive appearance, or sensory misperception.
+what is semantic gradation :: **Semantic gradation** refers to the continuum of intensity among related descriptive words rather than stark binary opposites (e.g., *freezing* $\to$ *cold* $\to$ *mild* $\to$ *warm* $\to$ *hot* $\to$ *scorching*).
+what is an absolute phrase :: An **absolute phrase** consists of a noun and a participle with accompanying modifiers, modifying the whole independent clause rather than a single noun (e.g., *"The training complete, the weights were serialized"*).
+what is a squinting modifier :: A **squinting modifier** is an adverb placed between two phrases such that it could ambiguously modify either the preceding or following word (e.g., *"Running quickly tires him out"* $\to$ ambiguous whether running is quick or tiredness happens quickly).
+how does summarization work :: Text **summarization** condenses lengthy discourse into its core thesis by isolating high-frequency semantic keywords, trimming non-restrictive clauses, and retaining salient subject-verb-object kernels.

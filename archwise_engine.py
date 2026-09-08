@@ -15,10 +15,10 @@ STOPWORDS = {
     "a", "an", "the", "in", "on", "at", "by", "for", "with",
     "about", "against", "between", "into", "through", "during",
     "before", "after", "above", "below", "to", "from", "up", "down",
-    "can", "you", "tell", "me", "please", "would", "could"
+    "can", "you", "tell", "me", "please", "would", "could", "is", "it",
+    "of", "and", "or", "that", "this"
 }
 
-# Rule-based grammar correction mappings
 GRAMMAR_PATTERNS = [
     (r"\b(he|she|it)\s+go\b", r"\1 goes"),
     (r"\b(he|she|it)\s+dont\b", r"\1 doesn't"),
@@ -68,8 +68,8 @@ class ArchWiseEngine:
         self.idf = {}
         self.doc_vectors = []
         self.assistant_fallbacks = [
-            "I haven't indexed that specific concept yet. You can ask me about English grammar rules, mathematics, computing, or writing!",
-            "I'm not certain how to answer that with my current knowledge. Try rephrasing or asking for a grammatical explanation or calculation.",
+            "I haven't indexed that specific concept yet. You can ask me about grammar rules, language mechanics, or mathematics!",
+            "I'm not certain how to answer that with my current knowledge. Try rephrasing or asking for a grammatical explanation.",
             "That query is outside my current trained parameters, but I am continuously learning."
         ]
 
@@ -88,18 +88,36 @@ class ArchWiseEngine:
                     corrected.append(w)
         return [stem_word(w) for w in corrected if w not in STOPWORDS]
 
+    def _summarize(self, text):
+        match = re.match(r"^summarize:\s*(.*)", text, re.IGNORECASE | re.DOTALL)
+        if not match:
+            return None
+        body = match.group(1).strip()
+        sentences = [s.strip() for s in re.split(r"[.!?]+", body) if s.strip()]
+        if len(sentences) <= 1:
+            return f"**Summary**: {body}"
+
+        # Score sentences by non-stopword token count
+        word_counts = Counter([stem_word(w.lower()) for w in re.findall(r"\b\w+\b", body) if w.lower() not in STOPWORDS])
+        scored = []
+        for s in sentences:
+            tokens = [stem_word(w.lower()) for w in re.findall(r"\b\w+\b", s) if w.lower() not in STOPWORDS]
+            score = sum(word_counts[t] for t in tokens) / (len(tokens) + 1)
+            scored.append((score, s))
+
+        scored.sort(key=lambda x: x[0], reverse=True)
+        top_sentences = [item[1] for item in scored[:2]]
+        return f"**Summary**:\n" + "\n".join([f"- {s}." for s in top_sentences])
+
     def _correct_grammar(self, text):
-        # Triggered when user asks: "fix: ...", "correct: ...", or "proofread: ..."
         trigger = re.match(r"^(?:fix|correct|proofread|grammar check):\s*(.*)", text, re.IGNORECASE)
         if not trigger:
             return None
-        
         target = trigger.group(1).strip()
         corrected = target
         for pattern, replacement in GRAMMAR_PATTERNS:
             corrected = re.sub(pattern, replacement, corrected, flags=re.IGNORECASE)
 
-        # Capitalize first letter and ensure ending punctuation
         if corrected:
             corrected = corrected[0].upper() + corrected[1:]
             if not corrected.endswith((".", "!", "?")):
@@ -207,17 +225,22 @@ class ArchWiseEngine:
         self.doc_vectors = data["doc_vectors"]
 
     def generate(self, prompt):
-        # 1. Grammar Correction Check
+        # 1. Summarization
+        summary = self._summarize(prompt)
+        if summary:
+            return summary
+
+        # 2. Grammar Correction Check
         grammar_eval = self._correct_grammar(prompt)
         if grammar_eval:
             return grammar_eval
 
-        # 2. Arithmetic Check
+        # 3. Arithmetic Check
         calc_result = self._try_arithmetic(prompt)
         if calc_result:
             return calc_result
 
-        # 3. Vector Match
+        # 4. Semantic Search
         tokens = self._tokenize(prompt)
         if not tokens:
             return "How can I assist you today?"
@@ -243,4 +266,4 @@ if __name__ == "__main__":
     engine = ArchWiseEngine()
     engine.train("corpus.txt")
     engine.save("model.json")
-    print(f"ArchWise v0.2 Compiled: Indexed {len(engine.raw_vocab)} words and grammar correction layer.")
+    print(f"ArchWise v0.3 Compiled: Multi-task engine active across {len(engine.documents)} patterns.")
