@@ -98,3 +98,29 @@ what is a straw man fallacy :: A **straw man fallacy** occurs when someone misre
 what is an ad hominem fallacy :: An **ad hominem fallacy** involves attacking the character, motive, or background of the person making the argument rather than addressing the substantive claim itself.
 what is a false dichotomy :: A **false dichotomy** (or false dilemma) incorrectly presents an issue as having only two extreme options while ignoring legitimate middle ground or alternatives.
 what is circular reasoning :: **Circular reasoning** occurs when the conclusion of an argument is presupposed within its premise (e.g., *"This algorithm is efficient because it runs efficiently"*).
+what is ethos pathos logos | rhetorical appeals :: Aristotle's three primary modes of persuasion are:
+- **Ethos**: Appeal to credibility, character, and authority.
+- **Pathos**: Appeal to emotion, empathy, and values.
+- **Logos**: Appeal to logic, evidence, and rational argumentation.
+what is a syllogism :: A **syllogism** is a form of deductive reasoning consisting of a major premise, a minor premise, and a logically necessary conclusion (e.g., *All humans are mortal; Socrates is human; therefore, Socrates is mortal*).
+what is occams razor :: **Occam's razor** is a problem-solving principle stating that among competing hypotheses that predict equally well, the one with the fewest assumptions should be preferred.
+what is epistemology :: **Epistemology** is the branch of philosophy concerned with the nature, origin, scope, and validity of knowledge and justified belief.
+what are newtons laws of motion | newtons laws :: Sir Isaac Newton formulated three fundamental laws of classical mechanics:
+1. **First Law (Inertia)**: An object remains at rest or in uniform straight-line motion unless acted upon by a net external force.
+2. **Second Law ($F = ma$)**: Force equals mass multiplied by acceleration.
+3. **Third Law (Action-Reaction)**: For every action, there is an equal and opposite reaction.
+what is relativity | theory of relativity :: Albert Einstein's theory of relativity consists of two parts:
+- **Special Relativity**: States that physical laws are identical in all inertial reference frames and the speed of light in a vacuum is constant for all observers.
+- **General Relativity**: Describes gravity not as a force, but as the geometric curvature of spacetime caused by mass and energy.
+what is a black hole :: A **black hole** is a region of spacetime where gravity is so strong that nothing—not even particles or electromagnetic radiation such as light—can escape past its event horizon.
+what is a covalent bond :: A **covalent bond** is a chemical link between atoms formed by the mutual sharing of one or more pairs of valence electrons.
+what is an ionic bond :: An **ionic bond** is a chemical linkage formed through the electrostatic attraction between oppositely charged ions, resulting from the complete transfer of one or more electrons.
+what is the ph scale :: The **pH scale** measures the acidity or basicity (alkalinity) of an aqueous solution on a logarithmic scale from $0$ to $14$, where $7$ is neutral, values below $7$ are acidic, and values above $7$ are basic.
+what is cryptography :: **Cryptography** is the practice and study of techniques for secure communication in the presence of adversarial third parties, ensuring confidentiality, data integrity, and authentication.
+what is hashing | cryptographic hash :: A **cryptographic hash function** is a one-way mathematical algorithm that maps arbitrary-length input data into a fixed-size string of characters, designed to be computationally infeasible to invert.
+what is symmetric encryption :: **Symmetric encryption** uses a single shared cryptographic key to both encrypt plain text into ciphertext and decrypt ciphertext back into plain text (e.g., AES).
+what is asymmetric encryption | public key cryptography :: **Asymmetric encryption** uses a mathematically linked key pair: a **public key** for encryption and a private, secret **private key** for decryption (e.g., RSA, ECC).
+what is an api gateway :: An **API Gateway** acts as a reverse proxy sitting in front of microservices to route requests, enforce rate limiting, authenticate users, and aggregate telemetry.
+what is a foreign key :: A **foreign key** is a column or group of columns in a relational database table that provides a link between data in two tables by referencing the primary key of another table.
+what is an array :: An **array** is a linear data structure that stores elements of identical data types in contiguous memory locations, allowing constant time $O(1)$ random access by index.
+what is a linked list :: A **linked list** is a linear collection of data elements called nodes, where each node stores a value and a pointer (reference) to the next node in sequence.
