@@ -36,6 +36,8 @@ GRAMMAR_PATTERNS = [
     (r"\ban\s+([^aeiou\s]\w+)", r"a \1"),
 ]
 
+FOLLOW_UP_TRIGGERS = {"more", "explain", "why", "elaborate", "continue", "detail", "tell me more"}
+
 def stem_word(w):
     suffixes = ("ing", "ly", "ed", "ous", "ies", "es", "s", "ment")
     for s in suffixes:
@@ -67,10 +69,11 @@ class ArchWiseEngine:
         self.raw_vocab = set()
         self.idf = {}
         self.doc_vectors = []
+        self.last_query = ""
         self.assistant_fallbacks = [
-            "I haven't indexed that specific concept yet. You can ask me about grammar rules, language mechanics, or mathematics!",
+            "I haven't indexed that specific concept yet. You can ask me about grammar rules, discourse structure, science, or math!",
             "I'm not certain how to answer that with my current knowledge. Try rephrasing or asking for a grammatical explanation.",
-            "That query is outside my current trained parameters, but I am continuously learning."
+            "That query falls outside my current baseline parameters, but I am continuously expanding my vocabulary."
         ]
 
     def _tokenize(self, text):
@@ -97,7 +100,6 @@ class ArchWiseEngine:
         if len(sentences) <= 1:
             return f"**Summary**: {body}"
 
-        # Score sentences by non-stopword token count
         word_counts = Counter([stem_word(w.lower()) for w in re.findall(r"\b\w+\b", body) if w.lower() not in STOPWORDS])
         scored = []
         for s in sentences:
@@ -225,23 +227,30 @@ class ArchWiseEngine:
         self.doc_vectors = data["doc_vectors"]
 
     def generate(self, prompt):
-        # 1. Summarization
+        # 1. Summarization check
         summary = self._summarize(prompt)
         if summary:
             return summary
 
-        # 2. Grammar Correction Check
+        # 2. Grammar correction check
         grammar_eval = self._correct_grammar(prompt)
         if grammar_eval:
             return grammar_eval
 
-        # 3. Arithmetic Check
+        # 3. Arithmetic evaluation check
         calc_result = self._try_arithmetic(prompt)
         if calc_result:
             return calc_result
 
-        # 4. Semantic Search
-        tokens = self._tokenize(prompt)
+        # 4. Follow-up Context Resolution
+        clean_input = prompt.strip().lower()
+        if clean_input in FOLLOW_UP_TRIGGERS and self.last_query:
+            tokens = self._tokenize(f"{self.last_query} details")
+        else:
+            tokens = self._tokenize(prompt)
+            if tokens:
+                self.last_query = prompt
+
         if not tokens:
             return "How can I assist you today?"
 
@@ -266,4 +275,4 @@ if __name__ == "__main__":
     engine = ArchWiseEngine()
     engine.train("corpus.txt")
     engine.save("model.json")
-    print(f"ArchWise v0.3 Compiled: Multi-task engine active across {len(engine.documents)} patterns.")
+    print(f"ArchWise v0.4 Compiled: Session contextual memory active across {len(engine.documents)} patterns.")
