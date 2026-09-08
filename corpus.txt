@@ -191,3 +191,48 @@ what are simple machines :: **Simple machines** alter the direction or magnitude
 5. Wedge
 6. Screw
 why is sleep important :: **Sleep** is essential for cognitive performance, memory consolidation, cellular and tissue regeneration, and metabolic waste clearance from the brain.
+what are parts of speech | 8 parts of speech :: The eight primary **parts of speech** in English are:
+1. **Noun**: Person, place, or thing (*city*, *algorithm*).
+2. **Pronoun**: Replaces a noun (*he*, *they*, *which*).
+3. **Verb**: Action or state of being (*build*, *is*).
+4. **Adjective**: Modifies a noun (*sharp*, *efficient*).
+5. **Adverb**: Modifies a verb, adjective, or adverb (*quickly*, *very*).
+6. **Preposition**: Shows spatial or temporal relationships (*under*, *through*, *at*).
+7. **Conjunction**: Connects clauses or phrases (*and*, *because*, *yet*).
+8. **Interjection**: Expresses emotion or sudden exclamation (*hey*, *ouch*).
+how to use commas | comma rules :: Key rules for using **commas**:
+- Separate three or more items in a list (*apples, oranges, and bananas*).
+- Join two independent clauses with a coordinating conjunction (*I compiled the code, but an error remained*).
+- Set off introductory clauses or phrases (*After booting up, the system ran tests*).
+- Enclose non-essential descriptive clauses (*ArchWise, an independent AI, runs locally*).
+semicolon vs colon | when to use a semicolon :: Punctuation distinction:
+- **Semicolon (`;`)**: Links two independent clauses that are closely related without using a conjunction (*The server is online; latency is minimal*).
+- **Colon (`:`)**: Introduces a list, explanation, quotation, or expansion of the preceding clause (*The system returned one error: memory overflow*).
+affect vs effect | difference between affect and effect :: Word distinction:
+- **Affect** (usually a **verb**): To influence or make a change (*High heat will affect CPU performance*).
+- **Effect** (usually a **noun**): The result or consequence of a change (*The update had an immediate effect on latency*).
+their there they're | difference between their there they're :: Homophone distinction:
+- **Their**: Possessive determiner (*It belongs to their team*).
+- **There**: Refers to a physical location or existence (*The data is stored over there*).
+- **They're**: Contraction of *they are* (*They're updating the server right now*).
+its vs it's | difference between its and it's :: Usage distinction:
+- **Its** (no apostrophe): Possessive pronoun indicating ownership (*The computer updated its firmware*).
+- **It's** (with apostrophe): Contraction of *it is* or *it has* (*It's running smoothly*).
+who vs whom | when to use whom :: Grammatical role:
+- **Who**: Operates as the **subject** of a clause (*Who initiated the query?* $\to$ *He did*).
+- **Whom**: Operates as the **object** of a verb or preposition (*To whom was this data sent?* $\to$ *To him*).
+subject verb agreement | what is subject verb agreement :: **Subject-verb agreement** requires that singular subjects take singular verbs, and plural subjects take plural verbs:
+- *Singular*: "The AI **processes** text efficiently."
+- *Plural*: "The neural networks **process** text efficiently."
+what is a clause :: A **clause** is a grammatical unit containing a subject and a predicate (verb). It can be:
+- **Independent**: Expresses a complete thought and can stand alone as a sentence.
+- **Dependent (Subordinate)**: Cannot stand alone and relies on an independent clause for context.
+what is a phrase :: A **phrase** is a group of two or more words functioning as a single unit without containing both a subject and its paired predicate (e.g., *in the morning*, *running late*).
+what is voice in writing :: Voice indicates whether the subject acts or is acted upon:
+- **Active**: Direct and vigorous (*The script initialized the server*).
+- **Passive**: Emphasizes the receiver or result (*The server was initialized by the script*).
+what are modal verbs | modal auxiliary :: **Modal verbs** express necessity, possibility, permission, or ability. Common examples include: *can, could, may, might, must, shall, should, will,* and *would*.
+what is an infinitive :: An **infinitive** is the base form of a verb typically preceded by the particle *to* (e.g., *to learn*, *to compute*, *to execute*).
+what is a gerund :: A **gerund** is a verb ending in *-ing* that functions grammatically as a noun (e.g., "*Coding* requires deep concentration").
+what is an idiom :: An **idiom** is an established phrase where the figurative meaning differs from literal definitions (e.g., *piece of cake*, *break the ice*, *hit the ground running*).
+what is figurative language :: **Figurative language** uses words outside their strict literal meanings to evoke comparisons, imagery, or emphasis (metaphors, similes, personification, hyperbole).
