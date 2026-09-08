@@ -145,3 +145,49 @@ what is permutation vs combination :: In combinatorics:
 - **Permutation**: Arrangement of items where the **order matters**.
 - **Combination**: Selection of items where the **order does not matter**.
 what is technical writing :: **Technical writing** is a form of communication designed to convey complex technical, scientific, or procedural information clearly, accurately, and concisely to an audience.
+what is the water cycle | how does rain happen :: The **water cycle** is the continuous movement of water on, above, and below Earth's surface through four stages:
+- **Evaporation**: Sun heats surface water, turning it into vapor.
+- **Condensation**: Water vapor cools and forms clouds.
+- **Precipitation**: Water falls as rain, snow, or hail.
+- **Collection**: Water gathers in rivers, lakes, and oceans.
+why do we have seasons | what causes seasons :: Earth experiences **seasons** because its axis is tilted at approximately **23.5 degrees** relative to its orbital plane around the Sun, changing how directly sunlight strikes different hemispheres throughout the year.
+what is the difference between rotation and revolution :: In planetary motion:
+- **Rotation**: An object spinning on its internal axis (Earth takes ~24 hours, causing **day and night**).
+- **Revolution**: An object orbiting around an external body (Earth takes ~365.25 days to orbit the Sun, defining a **year**).
+what are the layers of the earth :: Earth consists of four primary compositional layers:
+1. **Crust**: Thin, solid outer shell.
+2. **Mantle**: Thick, semi-solid rock layer beneath the crust.
+3. **Outer Core**: Liquid iron-nickel layer generating Earth's magnetic field.
+4. **Inner Core**: Dense, solid iron-nickel sphere under extreme pressure.
+what are the continents and oceans :: Earth has:
+- **7 Continents**: Asia, Africa, North America, South America, Antarctica, Europe, and Australia.
+- **5 Oceans**: Pacific, Atlantic, Indian, Southern (Antarctic), and Arctic.
+what is inflation :: **Inflation** is the general, progressive increase in prices of goods and services over time, which reduces the purchasing power of a given unit of currency.
+what is supply and demand :: The law of **supply and demand** dictates market prices:
+- When demand exceeds supply, prices generally rise.
+- When supply exceeds demand, prices generally fall.
+what is compound interest :: **Compound interest** is interest calculated on the initial principal and also on the accumulated interest of previous periods ($A = P(1 + r/n)^{nt}$).
+what is the difference between debit and credit :: In banking:
+- **Debit card**: Deducts money immediately from your existing personal bank account.
+- **Credit card**: Borrows funds from the card issuer that must be repaid within an agreed billing cycle.
+how does the human heart work :: The **heart** is a muscular pump containing four chambers (left/right atria and ventricles) that circulates oxygen-depleted blood to the lungs and pumps oxygen-rich blood throughout the body via arteries and veins.
+what are macronutrients :: The human body requires three primary **macronutrients** for energy and cellular repair:
+- **Carbohydrates**: The body's primary and fastest energy source.
+- **Proteins**: Essential building blocks for muscles, organs, enzymes, and hormones.
+- **Fats**: Concentrated energy storage, cell membrane structure, and nutrient absorption.
+what is voltage current and resistance | ohms law :: In electrical circuits, **Ohm's Law** relates three core properties ($V = IR$):
+- **Voltage ($V$)**: Electric potential difference (measured in volts).
+- **Current ($I$)**: The flow rate of electrical charge (measured in amperes).
+- **Resistance ($R$)**: The opposition to current flow (measured in ohms, $\Omega$).
+how is heat transferred :: Heat energy moves via three mechanisms:
+- **Conduction**: Direct transfer through physical contact (e.g., spoon heating in soup).
+- **Convection**: Fluid circulation driven by temperature differences (e.g., hot air rising).
+- **Radiation**: Electromagnetic wave emission without a medium (e.g., warmth from sunlight).
+what are simple machines :: **Simple machines** alter the direction or magnitude of a force to produce mechanical advantage:
+1. Lever
+2. Pulley
+3. Wheel and axle
+4. Inclined plane
+5. Wedge
+6. Screw
+why is sleep important :: **Sleep** is essential for cognitive performance, memory consolidation, cellular and tissue regeneration, and metabolic waste clearance from the brain.
