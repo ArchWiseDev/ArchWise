@@ -11,12 +11,10 @@ class ArchWiseEngine:
         self.vocab = {}
         self.idf = {}
         self.doc_vectors = []
-        self.baby_confusions = [
-            "Ooh... what does that mean? My little brain doesn't know that word yet!",
-            "I heard you, but I'm still very small! Can you say it in tiny words?",
-            "*tilts head* That sounds big and complicated! Teach me more about it?",
-            "Babbles in data... I don't understand that yet, but I'm trying hard!",
-            "Is that a new toy or a new word? I want to learn it!"
+        self.system_fallback = [
+            "Signal received, but semantic vector match below threshold (`SIM < 0.20`).",
+            "Unrecognized tokens detected. Pattern not present in baseline index.",
+            "Processing anomaly: Token entropy too high. Awaiting structured query."
         ]
 
     def _tokenize(self, text):
@@ -34,7 +32,7 @@ class ArchWiseEngine:
                     continue
                 patterns_part, reply = line.split("::", 1)
                 patterns = [p.strip() for p in patterns_part.split("|") if p.strip()]
-                reply = reply.strip()
+                reply = reply.strip().replace(r"\n", "\n")
                 for pat in patterns:
                     tokens = self._tokenize(pat)
                     if tokens:
@@ -90,11 +88,11 @@ class ArchWiseEngine:
     def generate(self, prompt):
         tokens = self._tokenize(prompt)
         if not tokens:
-            return "Peekaboo! Say something to me!"
+            return "Null input stream detected. Standby."
 
         query_vec = self._vectorize(tokens)
         if sum(query_vec) == 0:
-            return random.choice(self.baby_confusions)
+            return random.choice(self.system_fallback)
 
         best_score = -1.0
         best_idx = -1
@@ -105,7 +103,7 @@ class ArchWiseEngine:
                 best_idx = i
 
         if best_score < 0.2:
-            return random.choice(self.baby_confusions)
+            return random.choice(self.system_fallback)
 
         return self.responses[best_idx]
 
@@ -113,4 +111,4 @@ if __name__ == "__main__":
     engine = ArchWiseEngine()
     engine.train("corpus.txt")
     engine.save("model.json")
-    print("ArchWise newborn brain initialized and saved.")
+    print("ArchWise initialized in machine-logic state.")
