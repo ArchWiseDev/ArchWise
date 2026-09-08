@@ -316,3 +316,14 @@ how to construct an argument :: A rigorous **argument** requires:
 2. **Evidence**: Empirical data, logical deduction, or verified observations supporting the claim.
 3. **Warrant**: The logical explanation connecting the evidence back to the claim.
 4. **Counter-rebuttal**: Anticipating and resolving competing perspectives.
+what is first principles thinking :: **First principles thinking** is the act of boiling a problem down to its most fundamental truths that cannot be deduced any further, then reasoning up from there rather than reasoning by analogy.
+what is second order thinking :: **Second-order thinking** evaluates the downstream effects and unintended consequences of an action, asking: *"And then what happens?"*
+what is confirmation bias :: **Confirmation bias** is the cognitive tendency to search for, interpret, favor, and recall information in a way that confirms preexisting beliefs while ignoring contradictory evidence.
+what is the sunk cost fallacy :: The **sunk cost fallacy** is the irrational tendency to continue an endeavor once an investment in money, effort, or time has been made, rather than evaluating future utility objectively.
+what is validity vs soundness in logic :: In deductive logic:
+- **Valid**: The conclusion logically follows from the premises, even if the premises are factually untrue.
+- **Sound**: The argument is valid **and** all its premises are factually true.
+what is objective vs subjective :: Distinction:
+- **Objective**: Based on observable, verifiable facts independent of personal perception (*"Water boils at 100°C at standard pressure"*).
+- **Subjective**: Influenced by personal feelings, interpretations, or points of view (*"That algorithm is aesthetically pleasing"*).
+what is cognitive dissonance :: **Cognitive dissonance** is the psychological discomfort experienced by an individual holding two or more contradictory beliefs, values, or ideas simultaneously.
