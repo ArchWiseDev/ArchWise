@@ -124,3 +124,24 @@ what is an api gateway :: An **API Gateway** acts as a reverse proxy sitting in 
 what is a foreign key :: A **foreign key** is a column or group of columns in a relational database table that provides a link between data in two tables by referencing the primary key of another table.
 what is an array :: An **array** is a linear data structure that stores elements of identical data types in contiguous memory locations, allowing constant time $O(1)$ random access by index.
 what is a linked list :: A **linked list** is a linear collection of data elements called nodes, where each node stores a value and a pointer (reference) to the next node in sequence.
+what is a git commit :: A **git commit** is an immutable cryptographic snapshot of the repository index state, identified uniquely by a SHA-1 or SHA-256 hash.
+what is git branch :: A **branch** in Git is a lightweight, movable pointer to a specific commit, allowing independent divergence from the main line of development.
+what is git merge vs rebase :: In Git:
+- **Merge**: Combines distinct branches by creating a new merge commit, preserving historical chronology.
+- **Rebase**: Replays commits from one branch onto the tip of another, creating a linear history.
+what is binary search :: **Binary search** is an efficient $O(\log n)$ search algorithm that repeatedly divides a sorted collection in half to find a target value.
+what is linear search :: **Linear search** is a sequential search algorithm with $O(n)$ time complexity that checks every element from beginning to end until a match is found.
+what is merge sort :: **Merge sort** is an $O(n \log n)$ divide-and-conquer sorting algorithm that splits an array into halves, recursively sorts them, and merges the sorted halves.
+what is quick sort :: **Quick sort** is a divide-and-conquer sorting algorithm that selects a pivot element, partitions the array into values smaller and larger than the pivot, and recursively sorts the sub-arrays.
+what is tcp vs udp :: In networking:
+- **TCP**: Connection-oriented protocol providing reliable, ordered, and error-checked delivery of packets.
+- **UDP**: Connectionless protocol providing low-latency, unsequenced data transmission without delivery guarantees.
+what is a websocket :: A **WebSocket** is a computer communications protocol providing persistent, full-duplex communication channels over a single TCP connection.
+what is rest | what is restful :: **REST** (Representational State Transfer) is a software architectural style that utilizes stateless operations and standard HTTP methods (`GET`, `POST`, `PUT`, `DELETE`) to manage resources.
+what is modular arithmetic :: **Modular arithmetic** is a system of arithmetic for integers where numbers wrap around after reaching a certain value called the modulus ($a \equiv b \pmod m$).
+what is gcd | greatest common divisor :: The **Greatest Common Divisor (GCD)** of two non-zero integers is the largest positive integer that divides both numbers without leaving a remainder.
+what is a matrix in math :: A **matrix** is a rectangular array of numbers, symbols, or expressions arranged in rows and columns, used in linear algebra, computer graphics, and neural network transformations.
+what is permutation vs combination :: In combinatorics:
+- **Permutation**: Arrangement of items where the **order matters**.
+- **Combination**: Selection of items where the **order does not matter**.
+what is technical writing :: **Technical writing** is a form of communication designed to convey complex technical, scientific, or procedural information clearly, accurately, and concisely to an audience.
