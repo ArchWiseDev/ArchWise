@@ -252,3 +252,22 @@ what is vocabulary :: **Vocabulary** is the collection of words and terms known 
 what are irregular verbs :: **Irregular verbs** do not follow the standard rule of adding *-ed* or *-d* to form their past tense and past participle (e.g., *begin/began/begun*, *go/went/gone*, *write/wrote/written*).
 can you explain english grammar :: English grammar is the set of structural rules dictating the composition of clauses, phrases, and words. Its core pillars are **parts of speech**, **syntax**, **tenses**, and **punctuation**.
 what is tone in writing :: **Tone** reflects the writer's attitude toward the subject matter or audience (e.g., *formal, technical, objective, casual, humorous*).
+what is passive voice vs active voice | which voice is better :: While both are grammatically valid:
+- **Active voice** (*"The engineer optimized the query"*) is direct, concise, and dynamic.
+- **Passive voice** (*"The query was optimized by the engineer"*) is preferable when the actor is unknown, irrelevant, or when emphasizing the recipient of the action.
+what is parallel structure | parallelism in english :: **Parallel structure** (parallelism) means using the same grammatical pattern for two or more words, phrases, or clauses in a series (e.g., *"She likes coding, debugging, and testing"* rather than *"She likes coding, to debug, and tests"*).
+what is a dangling modifier :: A **dangling modifier** is a phrase or clause that modifies a word not clearly stated in the sentence (e.g., *"Walking down the street, the trees looked tall"* $\to$ corrected: *"Walking down the street, I noticed the trees looked tall"*).
+what is concise writing | how to write concisely :: **Concise writing** delivers the maximum amount of meaning using the fewest necessary words by:
+- Eliminating filler phrases (*"due to the fact that"* $\to$ *"because"*)
+- Removing redundant pairings (*"past history"* $\to$ *"history"*)
+- Replacing weak verb phrases with strong action verbs (*"made a decision"* $\to$ *"decided"*).
+what is a euphemism :: A **euphemism** is an innocuous or mild word or expression used in place of one that may be found offensive or unpleasantly direct (e.g., *"let go"* instead of *"fired"*).
+what is hyperbole :: **Hyperbole** is intentional exaggeration used for rhetorical effect or emphasis, not intended to be taken literally (e.g., *"I've told you a million times"*).
+what is irony :: **Irony** is a rhetorical device or situation characterized by an incongruity between expectations and reality:
+- **Verbal irony**: Stating the opposite of what is meant.
+- **Situational irony**: An outcome contrary to what was expected.
+- **Dramatic irony**: The audience knows crucial information that characters do not.
+what is an oxymoron vs paradox :: Distinction:
+- **Oxymoron**: A compact phrase pairing two contradictory terms together (*"deafening silence"*).
+- **Paradox**: A seemingly contradictory statement that reveals an underlying truth upon deeper inspection (*"The only constant is change"*).
+what is etymology :: **Etymology** is the scientific study of the origin, historical evolution, and semantic development of words.

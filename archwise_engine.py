@@ -18,6 +18,24 @@ STOPWORDS = {
     "can", "you", "tell", "me", "please", "would", "could"
 }
 
+# Rule-based grammar correction mappings
+GRAMMAR_PATTERNS = [
+    (r"\b(he|she|it)\s+go\b", r"\1 goes"),
+    (r"\b(he|she|it)\s+dont\b", r"\1 doesn't"),
+    (r"\b(he|she|it)\s+does\s+not\s+has\b", r"\1 does not have"),
+    (r"\b(they|we|you)\s+is\b", r"\1 are"),
+    (r"\b(they|we|you)\s+was\b", r"\1 were"),
+    (r"\b(i)\s+is\b", r"I am"),
+    (r"\b(i)\s+are\b", r"I am"),
+    (r"\btheir\s+(going|coming|here|running)\b", r"they're \1"),
+    (r"\byour\s+(welcome|right|wrong)\b", r"you're \1"),
+    (r"\bcould\s+of\b", r"could have"),
+    (r"\bshould\s+of\b", r"should have"),
+    (r"\bwould\s+of\b", r"would have"),
+    (r"\ba\s+([aeiou]\w+)", r"an \1"),
+    (r"\ban\s+([^aeiou\s]\w+)", r"a \1"),
+]
+
 def stem_word(w):
     suffixes = ("ing", "ly", "ed", "ous", "ies", "es", "s", "ment")
     for s in suffixes:
@@ -50,9 +68,9 @@ class ArchWiseEngine:
         self.idf = {}
         self.doc_vectors = []
         self.assistant_fallbacks = [
-            "I haven't indexed that specific concept yet. You can ask me about English grammar, computer science, mathematics, or science!",
-            "I'm not certain how to answer that with my current training. Could you try rephrasing or asking about another topic?",
-            "That concept is outside my current knowledge base, but I am continuously learning."
+            "I haven't indexed that specific concept yet. You can ask me about English grammar rules, mathematics, computing, or writing!",
+            "I'm not certain how to answer that with my current knowledge. Try rephrasing or asking for a grammatical explanation or calculation.",
+            "That query is outside my current trained parameters, but I am continuously learning."
         ]
 
     def _tokenize(self, text):
@@ -63,13 +81,31 @@ class ArchWiseEngine:
             if w in self.raw_vocab or len(w) < 4:
                 corrected.append(w)
             else:
-                # Fuzzy match typo correction
                 closest = min(self.raw_vocab, key=lambda target: levenshtein(w, target)) if self.raw_vocab else w
                 if levenshtein(w, closest) <= 2:
                     corrected.append(closest)
                 else:
                     corrected.append(w)
         return [stem_word(w) for w in corrected if w not in STOPWORDS]
+
+    def _correct_grammar(self, text):
+        # Triggered when user asks: "fix: ...", "correct: ...", or "proofread: ..."
+        trigger = re.match(r"^(?:fix|correct|proofread|grammar check):\s*(.*)", text, re.IGNORECASE)
+        if not trigger:
+            return None
+        
+        target = trigger.group(1).strip()
+        corrected = target
+        for pattern, replacement in GRAMMAR_PATTERNS:
+            corrected = re.sub(pattern, replacement, corrected, flags=re.IGNORECASE)
+
+        # Capitalize first letter and ensure ending punctuation
+        if corrected:
+            corrected = corrected[0].upper() + corrected[1:]
+            if not corrected.endswith((".", "!", "?")):
+                corrected += "."
+
+        return f"**Original**: *\"{target}\"*\n\n**Corrected**: *\"{corrected}\"*"
 
     def _try_arithmetic(self, text):
         norm = text.lower().replace("what's", "what is").replace("whats", "what is")
@@ -171,10 +207,17 @@ class ArchWiseEngine:
         self.doc_vectors = data["doc_vectors"]
 
     def generate(self, prompt):
+        # 1. Grammar Correction Check
+        grammar_eval = self._correct_grammar(prompt)
+        if grammar_eval:
+            return grammar_eval
+
+        # 2. Arithmetic Check
         calc_result = self._try_arithmetic(prompt)
         if calc_result:
             return calc_result
 
+        # 3. Vector Match
         tokens = self._tokenize(prompt)
         if not tokens:
             return "How can I assist you today?"
@@ -200,4 +243,4 @@ if __name__ == "__main__":
     engine = ArchWiseEngine()
     engine.train("corpus.txt")
     engine.save("model.json")
-    print(f"ArchWise Engine compiled. Indexed {len(engine.raw_vocab)} raw words and {len(engine.vocab)} stem dimensions across {len(engine.documents)} patterns.")
+    print(f"ArchWise v0.2 Compiled: Indexed {len(engine.raw_vocab)} words and grammar correction layer.")
