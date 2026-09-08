@@ -4,6 +4,12 @@ import json
 import random
 from collections import Counter
 
+WORD_NUMBERS = {
+    "zero": 0, "one": 1, "two": 2, "three": 3, "four": 4,
+    "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9,
+    "ten": 10, "eleven": 11, "twelve": 12, "twenty": 20
+}
+
 class ArchWiseEngine:
     def __init__(self):
         self.documents = []
@@ -11,15 +17,49 @@ class ArchWiseEngine:
         self.vocab = {}
         self.idf = {}
         self.doc_vectors = []
-        self.system_fallback = [
-            "Signal received, but semantic vector match below threshold (`SIM < 0.20`).",
-            "Unrecognized tokens detected. Pattern not present in baseline index.",
-            "Processing anomaly: Token entropy too high. Awaiting structured query."
+        self.assistant_fallbacks = [
+            "I'm still in early training, so I don't have enough data to answer that accurately yet. Try asking me general questions or basic arithmetic!",
+            "I don't quite understand that yet. You can train me with new knowledge by updating my corpus file.",
+            "I'm not sure how to respond to that prompt just yet. What else would you like to explore?"
         ]
 
     def _tokenize(self, text):
-        clean = re.sub(r"[^a-zA-Z0-9\s]", "", text.lower())
+        clean = re.sub(r"[^a-zA-Z0-9\s]", " ", text.lower())
         return [w for w in clean.split() if w]
+
+    def _try_arithmetic(self, text):
+        norm = text.lower().replace("what's", "what is").replace("whats", "what is")
+        tokens = self._tokenize(norm)
+        
+        # Replace word numbers with digits
+        converted = []
+        for t in tokens:
+            if t in WORD_NUMBERS:
+                converted.append(str(WORD_NUMBERS[t]))
+            else:
+                converted.append(t)
+        
+        reconstructed = " ".join(converted)
+        
+        # Pattern match basic addition: a + b or a plus b
+        match_add = re.search(r"(\d+)\s*(?:\+|\bplus\b)\s*(\d+)", reconstructed)
+        if match_add:
+            a, b = int(match_add.group(1)), int(match_add.group(2))
+            return f"{a} + {b} = **{a + b}**"
+
+        # Pattern match basic subtraction: a - b or a minus b
+        match_sub = re.search(r"(\d+)\s*(?:\-|\bminus\b)\s*(\d+)", reconstructed)
+        if match_sub:
+            a, b = int(match_sub.group(1)), int(match_sub.group(2))
+            return f"{a} - {b} = **{a - b}**"
+
+        # Pattern match basic multiplication: a * b or a times b
+        match_mul = re.search(r"(\d+)\s*(?:\*|\btimes\b|\bmultiplied by\b)\s*(\d+)", reconstructed)
+        if match_mul:
+            a, b = int(match_mul.group(1)), int(match_mul.group(2))
+            return f"{a} × {b} = **{a * b}**"
+
+        return None
 
     def train(self, corpus_path="corpus.txt"):
         self.documents = []
@@ -86,13 +126,18 @@ class ArchWiseEngine:
         self.doc_vectors = data["doc_vectors"]
 
     def generate(self, prompt):
+        # Check rule/logic based modules first (arithmetic reasoning)
+        calc_result = self._try_arithmetic(prompt)
+        if calc_result:
+            return calc_result
+
         tokens = self._tokenize(prompt)
         if not tokens:
-            return "Null input stream detected. Standby."
+            return "How can I help you?"
 
         query_vec = self._vectorize(tokens)
         if sum(query_vec) == 0:
-            return random.choice(self.system_fallback)
+            return random.choice(self.assistant_fallbacks)
 
         best_score = -1.0
         best_idx = -1
@@ -103,7 +148,7 @@ class ArchWiseEngine:
                 best_idx = i
 
         if best_score < 0.2:
-            return random.choice(self.system_fallback)
+            return random.choice(self.assistant_fallbacks)
 
         return self.responses[best_idx]
 
@@ -111,4 +156,4 @@ if __name__ == "__main__":
     engine = ArchWiseEngine()
     engine.train("corpus.txt")
     engine.save("model.json")
-    print("ArchWise initialized in machine-logic state.")
+    print("ArchWise Assistant Engine trained and saved.")

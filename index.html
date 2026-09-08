@@ -3,54 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>ArchWise Terminal</title>
+  <title>ArchWise AI</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background-color: #0b0f19; color: #e2e8f0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 12px; }
-    .chat-card { width: 100%; max-width: 620px; height: 88vh; background: #111827; border: 1px solid #1f2937; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6); }
-    .header { padding: 14px 16px; background: #030712; border-bottom: 1px solid #1f2937; display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; letter-spacing: 0.5px; }
-    .header-title { font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 8px; }
-    .status-indicator { width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 6px #10b981; }
-    .chat-box { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
-    .msg { max-width: 85%; padding: 10px 14px; font-size: 0.88rem; line-height: 1.5; border-radius: 8px; word-break: break-word; }
-    .user { align-self: flex-end; background: #1e3a8a; color: #ffffff; border-bottom-right-radius: 2px; }
-    .bot { align-self: flex-start; background: #1f2937; color: #f3f4f6; border-bottom-left-radius: 2px; border: 1px solid #374151; }
-    .bot-label { font-size: 0.7rem; font-weight: 700; color: #38bdf8; margin-bottom: 4px; text-transform: uppercase; }
+    body { background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 12px; }
+    .chat-container { width: 100%; max-width: 680px; height: 90vh; background: #161b22; border: 1px solid #30363d; border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5); }
+    .chat-header { padding: 16px 20px; background: #0d1117; border-bottom: 1px solid #30363d; display: flex; align-items: center; gap: 12px; }
+    .ai-badge { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #1f6feb, #58a6ff); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; font-size: 0.95rem; }
+    .header-info h1 { font-size: 1.05rem; font-weight: 600; color: #f0f6fc; }
+    .header-info p { font-size: 0.75rem; color: #8b949e; }
+    .chat-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; scroll-behavior: smooth; }
+    .msg-row { display: flex; width: 100%; }
+    .msg-row.user-row { justify-content: flex-end; }
+    .msg-row.bot-row { justify-content: flex-start; }
+    .msg { max-width: 85%; padding: 12px 16px; font-size: 0.92rem; line-height: 1.55; border-radius: 14px; word-break: break-word; }
+    .user { background: #1f6feb; color: #ffffff; border-bottom-right-radius: 4px; }
+    .bot { background: #21262d; color: #e6edf3; border-bottom-left-radius: 4px; border: 1px solid #30363d; }
     
     /* Markdown Styles */
-    .msg pre { background: #030712; padding: 8px 10px; border-radius: 6px; overflow-x: auto; margin: 6px 0; border: 1px solid #374151; font-size: 0.82rem; }
-    .msg code { background: #030712; padding: 2px 5px; border-radius: 4px; font-family: inherit; font-size: 0.82rem; color: #38bdf8; }
+    .msg pre { background: #0d1117; padding: 10px; border-radius: 6px; overflow-x: auto; margin: 8px 0; border: 1px solid #30363d; font-size: 0.85rem; }
+    .msg code { background: #0d1117; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.85rem; color: #79c0ff; }
     .msg pre code { padding: 0; background: transparent; }
-    .msg strong { color: #f9fafb; font-weight: 700; }
-    .msg em { font-style: italic; }
-    .msg ul { margin-left: 18px; margin-top: 4px; }
-    .msg li { margin-bottom: 2px; }
+    .msg strong { color: #f0f6fc; font-weight: 600; }
+    .msg ul { margin-left: 20px; margin-top: 6px; margin-bottom: 6px; }
+    .msg li { margin-bottom: 4px; }
 
-    .input-bar { padding: 12px; background: #030712; border-top: 1px solid #1f2937; display: flex; gap: 8px; }
-    input[type="text"] { flex: 1; background: #111827; border: 1px solid #374151; border-radius: 8px; padding: 10px 14px; color: #f9fafb; font-family: inherit; font-size: 0.88rem; outline: none; transition: border-color 0.2s; }
-    input[type="text"]:focus { border-color: #38bdf8; }
-    button { background: #0284c7; color: #ffffff; border: none; border-radius: 8px; padding: 0 16px; font-family: inherit; font-size: 0.88rem; font-weight: 600; cursor: pointer; }
-    button:active { background: #0369a1; }
+    .chat-footer { padding: 14px 18px; background: #0d1117; border-top: 1px solid #30363d; display: flex; gap: 10px; }
+    input[type="text"] { flex: 1; background: #21262d; border: 1px solid #30363d; border-radius: 10px; padding: 12px 16px; color: #f0f6fc; font-size: 0.92rem; outline: none; transition: border-color 0.2s; }
+    input[type="text"]:focus { border-color: #58a6ff; }
+    button { background: #1f6feb; color: #ffffff; border: none; border-radius: 10px; padding: 0 20px; font-size: 0.92rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    button:hover { background: #388bfd; }
   </style>
 </head>
 <body>
-  <div class="chat-card">
-    <div class="header">
-      <div class="header-title">
-        <div class="status-indicator"></div>
-        ARCHWISE // OS_CORE
-      </div>
-      <span style="font-size: 0.72rem; color: #6b7280;">PORT: 8080</span>
-    </div>
-    <div class="chat-box" id="chat">
-      <div class="msg bot">
-        <div class="bot-label">SYSTEM</div>
-        ArchWise kernel loaded. Standard mode ready.
+  <div class="chat-container">
+    <div class="chat-header">
+      <div class="ai-badge">A</div>
+      <div class="header-info">
+        <h1>ArchWise AI</h1>
+        <p>Scratch-built language model</p>
       </div>
     </div>
-    <div class="input-bar">
-      <input type="text" id="userInput" placeholder="Execute command or string query..." autofocus>
-      <button onclick="sendPrompt()">Execute</button>
+    <div class="chat-body" id="chat">
+      <div class="msg-row bot-row">
+        <div class="msg bot">
+          Hello! I am **ArchWise**, an AI assistant built from scratch. How can I help you today?
+        </div>
+      </div>
+    </div>
+    <div class="chat-footer">
+      <input type="text" id="userInput" placeholder="Message ArchWise..." autofocus>
+      <button onclick="sendPrompt()">Send</button>
     </div>
   </div>
 
@@ -61,20 +64,14 @@
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
 
-      // Code blocks (```code```)
       escaped = escaped.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-      // Inline code (`code`)
       escaped = escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
-      // Bold (**text**)
       escaped = escaped.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-      // Italics (*text*)
       escaped = escaped.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-      // Unordered list items (- item)
       escaped = escaped.replace(/(?:^|\n)-\s+(.*)/g, '<li>$1</li>');
       if (escaped.includes('<li>')) {
         escaped = escaped.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>');
       }
-      // Linebreaks
       escaped = escaped.replace(/\n/g, '<br>');
       return escaped;
     }
@@ -92,7 +89,10 @@
       if (!text) return;
 
       const chat = document.getElementById('chat');
-      chat.innerHTML += `<div class="msg user">${parseMarkdown(text)}</div>`;
+      chat.innerHTML += `
+        <div class="msg-row user-row">
+          <div class="msg user">${parseMarkdown(text)}</div>
+        </div>`;
       inputField.value = '';
       chat.scrollTop = chat.scrollHeight;
 
@@ -104,15 +104,15 @@
         });
         const data = await response.json();
         chat.innerHTML += `
-          <div class="msg bot">
-            <div class="bot-label">ARCHWISE</div>
-            ${parseMarkdown(data.response)}
+          <div class="msg-row bot-row">
+            <div class="msg bot">${parseMarkdown(data.response)}</div>
           </div>`;
       } catch (err) {
         chat.innerHTML += `
-          <div class="msg bot" style="border-color: #ef4444;">
-            <div class="bot-label" style="color: #ef4444;">FATAL_IO</div>
-            Channel closed unexpectedly.
+          <div class="msg-row bot-row">
+            <div class="msg bot" style="border-color: #f85149; color: #ff7b72;">
+              Error: Could not reach ArchWise engine.
+            </div>
           </div>`;
       }
       chat.scrollTop = chat.scrollHeight;
