@@ -75,3 +75,26 @@ what is inductive reasoning :: **Inductive reasoning** is a bottom-up logical ap
 what is cause and effect :: **Cause and effect** is the directional principle of causality where an initial action, event, or condition (the cause) directly brings about a subsequent result or consequence (the effect).
 what is entropy :: **Entropy** is a measure of disorder, randomness, or thermal energy unavailable for useful work within a closed thermodynamic or informational system.
 what is an ecosystem :: An **ecosystem** is a geographic biological community where living organisms (plants, animals, microbes) interact alongside non-living physical elements (weather, soil, water).
+what is a compound sentence :: A **compound sentence** joins two independent clauses using a coordinating conjunction (like *and*, *but*, *or*) or a semicolon (e.g., *"The code compiled, but the test failed"*).
+what is a complex sentence :: A **complex sentence** contains one independent clause and at least one dependent (subordinate) clause beginning with words like *because*, *although*, or *since* (e.g., *"Because the server crashed, traffic was rerouted"*).
+what is a conjunction :: A **conjunction** connects words, phrases, or clauses:
+- **Coordinating**: connect equal elements (*for, and, nor, but, or, yet, so*)
+- **Subordinating**: introduce dependent clauses (*although, because, while, if*)
+what is a prefix :: A **prefix** is an affix placed at the beginning of a root word to alter its meaning (e.g., *un-* in *undo*, *re-* in *refactor*, *anti-* in *anticorrupt*).
+what is a suffix :: A **suffix** is an affix placed at the end of a root word to determine its grammatical function or tense (e.g., *-tion* in *execution*, *-able* in *scalable*, *-ly* in *quickly*).
+what is a homophone :: A **homophone** is a word that sounds the same as another word but has a different spelling and meaning (e.g., *there*, *their*, and *they're*; *byte* and *bite*).
+what is a homograph :: A **homograph** is a word that shares the same written form as another word but possesses a different meaning, and sometimes distinct pronunciation (e.g., *lead* as a metal vs *lead* to guide).
+what is connotation vs denotation :: **Denotation** is the strict literal dictionary definition of a word, whereas **connotation** comprises the cultural, emotional, or associative meanings tied to it.
+what is object oriented programming | what is oop :: **Object-Oriented Programming (OOP)** organizes software design around discrete data objects containing attributes (fields) and behaviors (methods), relying on encapsulation, inheritance, and polymorphism.
+what is functional programming | what is fp :: **Functional Programming (FP)** treats computation as the evaluation of mathematical functions, avoiding mutable state and side effects through pure functions.
+what is dynamic programming :: **Dynamic Programming (DP)** solves complex optimization problems by breaking them down into overlapping subproblems, storing already computed answers (memoization) to prevent redundant work.
+what is a greedy algorithm :: A **greedy algorithm** builds a solution piece by piece, always choosing the immediate, locally optimal step at each stage with the intent of reaching a global optimum.
+what is tcp ip :: **TCP/IP** (Transmission Control Protocol / Internet Protocol) is the fundamental communications protocol suite of the Internet, ensuring reliable, sequenced packet transport.
+what is dns | domain name system :: **DNS** (Domain Name System) translates human-readable domain names (like `github.com`) into numerical machine IP addresses (like `140.82.121.4`).
+what is caching | what is cache :: **Caching** stores copies of frequently accessed data in a fast temporary storage layer to reduce latency and speed up retrieval for subsequent requests.
+what is concurrency | multithreading :: **Concurrency** is the execution of multiple tasks over overlapping time periods, often utilizing multithreading or asynchronous event loops to maximize CPU efficiency.
+what is a logical fallacy :: A **logical fallacy** is a flaw or error in reasoning that weakens or invalidates an argument.
+what is a straw man fallacy :: A **straw man fallacy** occurs when someone misrepresents, exaggerates, or oversimplifies an opponent's argument to make it easier to attack.
+what is an ad hominem fallacy :: An **ad hominem fallacy** involves attacking the character, motive, or background of the person making the argument rather than addressing the substantive claim itself.
+what is a false dichotomy :: A **false dichotomy** (or false dilemma) incorrectly presents an issue as having only two extreme options while ignoring legitimate middle ground or alternatives.
+what is circular reasoning :: **Circular reasoning** occurs when the conclusion of an argument is presupposed within its premise (e.g., *"This algorithm is efficient because it runs efficiently"*).
