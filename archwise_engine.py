@@ -16,7 +16,7 @@ STOPWORDS = {
     "about", "against", "between", "into", "through", "during",
     "before", "after", "above", "below", "to", "from", "up", "down",
     "can", "you", "tell", "me", "please", "would", "could", "is", "it",
-    "of", "and", "or", "that", "this"
+    "of", "and", "or", "that", "this", "do", "does", "did", "i"
 }
 
 SYNONYMS = {
@@ -60,51 +60,28 @@ def stem_word(w):
             return w[:-len(s)]
     return w
 
-def levenshtein(s1, s2):
-    if len(s1) < len(s2):
-        return levenshtein(s2, s1)
-    if len(s2) == 0:
-        return len(s1)
-    previous_row = range(len(s2) + 1)
-    for i, c1 in enumerate(s1):
-        current_row = [i + 1]
-        for j, c2 in enumerate(s2):
-            insertions = previous_row[j + 1] + 1
-            deletions = current_row[j] + 1
-            substitutions = previous_row[j] + (c1 != c2)
-            current_row.append(min(insertions, deletions, substitutions))
-        previous_row = current_row
-    return previous_row[-1]
-
 class ArchWiseEngine:
-    def __init__(self):
+    def __init__(self, k1=1.5, b=0.75):
+        self.k1 = k1
+        self.b = b
         self.documents = []
         self.responses = []
-        self.vocab = {}
-        self.raw_vocab = set()
+        self.doc_len = []
+        self.avgdl = 0.0
+        self.vocab = set()
         self.idf = {}
-        self.doc_vectors = []
+        self.doc_freqs = []
         self.last_query = ""
         self.assistant_fallbacks = [
-            "I haven't indexed that specific concept yet. You can ask me to write an essay, explain grammar, calculate numbers, or summarize text!",
-            "I'm not certain how to answer that with my current knowledge. Try rephrasing or asking for a grammatical explanation.",
-            "That query falls outside my current baseline parameters, but I am continuously expanding my vocabulary."
+            "I haven't indexed that specific concept yet. Feel free to ask about grammar rules, science, arithmetic, or writing tools!",
+            "I don't have enough verified information on that topic yet. Could you try rephrasing or asking another question?",
+            "That concept falls outside my current baseline training."
         ]
 
     def _tokenize(self, text):
         clean = re.sub(r"[^a-zA-Z0-9\s]", " ", text.lower())
-        raw_tokens = [w for w in clean.split() if w]
-        corrected = []
-        for w in raw_tokens:
-            if w in self.raw_vocab or len(w) < 4:
-                corrected.append(w)
-            else:
-                closest = min(self.raw_vocab, key=lambda target: levenshtein(w, target)) if self.raw_vocab else w
-                if levenshtein(w, closest) <= 2:
-                    corrected.append(closest)
-                else:
-                    corrected.append(w)
-        return [stem_word(w) for w in corrected if w not in STOPWORDS]
+        tokens = [stem_word(w) for w in clean.split() if w and w not in STOPWORDS]
+        return tokens
 
     def _generate_essay(self, prompt):
         match = re.search(r"\b(?:write\s+(?:an?\s+)?essay(?:\s+on|\s+about)?)\s*(.*)", prompt, re.IGNORECASE)
@@ -112,7 +89,7 @@ class ArchWiseEngine:
             return None
         topic = match.group(1).strip()
         if not topic:
-            topic = "the Importance of Language and Learning"
+            topic = "the Importance of Knowledge and Learning"
 
         clean_topic = topic.strip("?.!")
         return (
@@ -121,7 +98,7 @@ class ArchWiseEngine:
             f"In the modern world, **{clean_topic}** plays a pivotal role in shaping ideas, systems, and human understanding. "
             f"Examining this subject reveals not only its core principles, but also the broader implications it holds for society, science, and intellect.\n\n"
             f"**Core Analysis**\n"
-            f"At its foundation, {clean_topic} functions as a dynamic framework. When analyzed through first principles, "
+            f"At its foundation, {clean_topic} functions as a dynamic framework. When analyzed systematically, "
             f"it demonstrates how interconnected concepts collaborate to create functional order. "
             f"Whether through structured systems, clear rules, or continuous iteration, the underlying mechanics drive consistent progress and clarity.\n\n"
             f"Furthermore, understanding {clean_topic} allows us to avoid common fallacies and superficial assumptions. "
@@ -232,12 +209,10 @@ class ArchWiseEngine:
     def train(self, corpus_path="corpus.txt"):
         self.documents = []
         self.responses = []
-        self.raw_vocab = set()
 
         with open(corpus_path, "r", encoding="utf-8") as f:
             full_text = f.read()
 
-        # Split entries by double-colon delimiters cleanly across newlines
         blocks = full_text.split("\n")
         current_patterns = None
         current_reply = []
@@ -249,7 +224,6 @@ class ArchWiseEngine:
                     reply_text = "\n".join(current_reply).strip()
                     for pat in current_patterns:
                         clean_words = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", pat.lower()).split() if w]
-                        self.raw_vocab.update(clean_words)
                         tokens = [stem_word(w) for w in clean_words if w not in STOPWORDS]
                         if tokens:
                             self.documents.append(tokens)
@@ -265,47 +239,49 @@ class ArchWiseEngine:
             reply_text = "\n".join(current_reply).strip()
             for pat in current_patterns:
                 clean_words = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", pat.lower()).split() if w]
-                self.raw_vocab.update(clean_words)
                 tokens = [stem_word(w) for w in clean_words if w not in STOPWORDS]
                 if tokens:
                     self.documents.append(tokens)
                     self.responses.append(reply_text)
 
+        self.doc_len = [len(doc) for doc in self.documents]
+        self.avgdl = sum(self.doc_len) / len(self.doc_len) if self.doc_len else 1.0
+        self.doc_freqs = [Counter(doc) for doc in self.documents]
+
         total_docs = len(self.documents)
         df = Counter()
-        all_stems = set()
         for doc in self.documents:
             for w in set(doc):
                 df[w] += 1
-                all_stems.add(w)
+                self.vocab.add(w)
 
-        self.vocab = {stem: idx for idx, stem in enumerate(sorted(list(all_stems)))}
-        self.idf = {stem: math.log((1.0 + total_docs) / (1.0 + df[stem])) + 1.0 for stem in self.vocab}
-        self.doc_vectors = [self._vectorize(doc) for doc in self.documents]
+        # Probabilistic BM25 IDF
+        self.idf = {w: math.log((total_docs - df[w] + 0.5) / (df[w] + 0.5) + 1.0) for w in self.vocab}
 
-    def _vectorize(self, tokens):
-        tf = Counter(tokens)
-        vec = [0.0] * len(self.vocab)
-        for stem, count in tf.items():
-            if stem in self.vocab:
-                idx = self.vocab[stem]
-                w_tf = 1.0 + math.log(count) if count > 0 else 0.0
-                vec[idx] = w_tf * self.idf[stem]
-        norm = math.sqrt(sum(x * x for x in vec))
-        if norm > 0:
-            vec = [x / norm for x in vec]
-        return vec
+    def _bm25_score(self, query_tokens, doc_idx):
+        score = 0.0
+        doc_freq = self.doc_freqs[doc_idx]
+        dl = self.doc_len[doc_idx]
 
-    def _cosine_similarity(self, vec_a, vec_b):
-        return sum(a * b for a, b in zip(vec_a, vec_b))
+        for token in query_tokens:
+            if token not in doc_freq:
+                continue
+            freq = doc_freq[token]
+            idf = self.idf.get(token, 0.0)
+            denom = freq + self.k1 * (1.0 - self.b + self.b * (dl / self.avgdl))
+            score += idf * (freq * (self.k1 + 1.0)) / denom
+        return score
 
     def save(self, filepath="model.json"):
         data = {
-            "vocab": self.vocab,
-            "raw_vocab": list(self.raw_vocab),
+            "k1": self.k1,
+            "b": self.b,
+            "avgdl": self.avgdl,
+            "doc_len": self.doc_len,
+            "vocab": list(self.vocab),
             "idf": self.idf,
             "responses": self.responses,
-            "doc_vectors": self.doc_vectors
+            "documents": self.documents
         }
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f)
@@ -313,19 +289,23 @@ class ArchWiseEngine:
     def load(self, filepath="model.json"):
         with open(filepath, "r", encoding="utf-8") as f:
             data = json.load(f)
-        self.vocab = data["vocab"]
-        self.raw_vocab = set(data["raw_vocab"])
+        self.k1 = data["k1"]
+        self.b = data["b"]
+        self.avgdl = data["avgdl"]
+        self.doc_len = data["doc_len"]
+        self.vocab = set(data["vocab"])
         self.idf = data["idf"]
         self.responses = data["responses"]
-        self.doc_vectors = data["doc_vectors"]
+        self.documents = data["documents"]
+        self.doc_freqs = [Counter(doc) for doc in self.documents]
 
     def generate(self, prompt):
-        # 1. Dynamic Essay Generator
+        # 1. Essay Generation
         essay_eval = self._generate_essay(prompt)
         if essay_eval:
             return essay_eval
 
-        # 2. Paraphrase Generator
+        # 2. Rephrase Engine
         rephrase_eval = self._rephrase(prompt)
         if rephrase_eval:
             return rephrase_eval
@@ -345,10 +325,10 @@ class ArchWiseEngine:
         if calc_result:
             return calc_result
 
-        # 6. Contextual Follow-up
+        # 6. Conversational Follow-up
         clean_input = prompt.strip().lower()
         if clean_input in FOLLOW_UP_TRIGGERS and self.last_query:
-            tokens = self._tokenize(f"{self.last_query} details")
+            tokens = self._tokenize(f"{self.last_query}")
         else:
             tokens = self._tokenize(prompt)
             if tokens:
@@ -357,19 +337,17 @@ class ArchWiseEngine:
         if not tokens:
             return "How can I assist you today?"
 
-        query_vec = self._vectorize(tokens)
-        if sum(query_vec) == 0:
-            return random.choice(self.assistant_fallbacks)
-
-        best_score = -1.0
+        best_score = 0.0
         best_idx = -1
-        for i, dvec in enumerate(self.doc_vectors):
-            sim = self._cosine_similarity(query_vec, dvec)
-            if sim > best_score:
-                best_score = sim
+        for i in range(len(self.documents)):
+            score = self._bm25_score(tokens, i)
+            if score > best_score:
+                best_score = score
                 best_idx = i
 
-        if best_score < 0.18:
+        # Strict Relevance Floor: Must have meaningful BM25 score and at least one shared token
+        matched_tokens = set(tokens).intersection(set(self.documents[best_idx])) if best_idx != -1 else set()
+        if best_score < 1.2 or not matched_tokens:
             return random.choice(self.assistant_fallbacks)
 
         return self.responses[best_idx]
@@ -378,4 +356,4 @@ if __name__ == "__main__":
     engine = ArchWiseEngine()
     engine.train("corpus.txt")
     engine.save("model.json")
-    print(f"ArchWise engine recompiled with multiline preserving and essay generation support.")
+    print("ArchWise Precision Engine trained with BM25 (Levenshtein warping removed).")
