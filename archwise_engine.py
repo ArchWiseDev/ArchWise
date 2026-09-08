@@ -18,9 +18,9 @@ class ArchWiseEngine:
         self.idf = {}
         self.doc_vectors = []
         self.assistant_fallbacks = [
-            "I'm still in early training, so I don't have enough data to answer that accurately yet. Try asking me general questions or basic arithmetic!",
-            "I don't quite understand that yet. You can train me with new knowledge by updating my corpus file.",
-            "I'm not sure how to respond to that prompt just yet. What else would you like to explore?"
+            "I'm not completely sure about that. Could you rephrase or ask in another way?",
+            "I don't have enough information on that topic at the moment. What else can I help you with?",
+            "I didn't quite catch that. Feel free to provide more context so I can assist you better."
         ]
 
     def _tokenize(self, text):
@@ -31,7 +31,6 @@ class ArchWiseEngine:
         norm = text.lower().replace("what's", "what is").replace("whats", "what is")
         tokens = self._tokenize(norm)
         
-        # Replace word numbers with digits
         converted = []
         for t in tokens:
             if t in WORD_NUMBERS:
@@ -41,19 +40,19 @@ class ArchWiseEngine:
         
         reconstructed = " ".join(converted)
         
-        # Pattern match basic addition: a + b or a plus b
+        # Addition
         match_add = re.search(r"(\d+)\s*(?:\+|\bplus\b)\s*(\d+)", reconstructed)
         if match_add:
             a, b = int(match_add.group(1)), int(match_add.group(2))
             return f"{a} + {b} = **{a + b}**"
 
-        # Pattern match basic subtraction: a - b or a minus b
+        # Subtraction
         match_sub = re.search(r"(\d+)\s*(?:\-|\bminus\b)\s*(\d+)", reconstructed)
         if match_sub:
             a, b = int(match_sub.group(1)), int(match_sub.group(2))
             return f"{a} - {b} = **{a - b}**"
 
-        # Pattern match basic multiplication: a * b or a times b
+        # Multiplication
         match_mul = re.search(r"(\d+)\s*(?:\*|\btimes\b|\bmultiplied by\b)\s*(\d+)", reconstructed)
         if match_mul:
             a, b = int(match_mul.group(1)), int(match_mul.group(2))
@@ -126,14 +125,13 @@ class ArchWiseEngine:
         self.doc_vectors = data["doc_vectors"]
 
     def generate(self, prompt):
-        # Check rule/logic based modules first (arithmetic reasoning)
         calc_result = self._try_arithmetic(prompt)
         if calc_result:
             return calc_result
 
         tokens = self._tokenize(prompt)
         if not tokens:
-            return "How can I help you?"
+            return "How can I help you today?"
 
         query_vec = self._vectorize(tokens)
         if sum(query_vec) == 0:
@@ -156,4 +154,4 @@ if __name__ == "__main__":
     engine = ArchWiseEngine()
     engine.train("corpus.txt")
     engine.save("model.json")
-    print("ArchWise Assistant Engine trained and saved.")
+    print("ArchWise Knowledge Base compiled successfully.")

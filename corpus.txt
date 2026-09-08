@@ -1,19 +1,18 @@
-hello | hi | hey | greetings :: Hello! I'm **ArchWise**, an AI assistant built from scratch. How can I help you today?
-who are you | what is your name :: I am **ArchWise**, an independent AI assistant developed from the ground up without third-party models.
-who made you | who is your creator | who developed you :: I was created by **ArchWiseDev**.
-what can you do | help | features :: Here is what I can currently do:
-- Process natural language English queries
-- Answer basic questions and definitions
-- Perform simple arithmetic reasoning
-- Render responses with formatted Markdown
-how are you | how are you doing :: I'm running smoothly! Thanks for asking. How can I assist you?
+hello | hi | hey | greetings :: Hello! How can I assist you today?
+who are you | what is your name :: I am **ArchWise**, an AI assistant designed to learn language structures and assist users.
+who created you | who made you :: I was created by **ArchWiseDev**.
+what can you do | help | features :: As an AI system, I can:
+- Assist with general knowledge and definitions
+- Perform quick mathematical computations
+- Process text commands and discuss concepts
+- Format information using Markdown
+how are you | how are you doing :: I'm functioning well and ready to assist. How can I help you?
 what is one plus two | 1 + 2 | one plus two :: One plus two equals **3**.
 what is two plus two | 2 + 2 | two plus two :: Two plus two equals **4**.
-what is five plus five | 5 + 5 :: Five plus five equals **10**.
-what is english :: **English** is a global lingua franca and a West Germanic language spoken by billions worldwide.
-what is ai | what is artificial intelligence :: **Artificial Intelligence (AI)** refers to computer systems designed to perform tasks that normally require human intelligence, such as pattern recognition, problem solving, and language comprehension.
-what is code | what is programming :: Programming is the process of creating instructions that tell a computer how to execute tasks and process data.
-thank you | thanks :: You're very welcome! Let me know if you have any other questions.
-good morning :: Good morning! I hope you have a great day ahead.
-good night | bye | goodbye :: Goodbye! Feel free to return whenever you want to chat or test my capabilities.
-huh | what | confused :: Did I say something unclear? Feel free to ask or rephrase your question!
+what is english :: **English** is a West Germanic language that is currently the primary international language for communication, science, and computing.
+what is ai | what is artificial intelligence :: **Artificial Intelligence (AI)** is the development of computer programs capable of performing tasks normally requiring human intelligence, such as visual perception, language processing, and decision-making.
+what is programming | what is code :: Programming is the process of writing instructions in languages like Python to instruct computers on how to perform specific operations.
+thank you | thanks :: You're welcome! Let me know if you need anything else.
+good morning :: Good morning! I hope you have a great day.
+good night | bye | goodbye :: Goodbye! Have a great time ahead.
+tell me a joke :: Why do programmers prefer dark mode? Because light attracts bugs!
