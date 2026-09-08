@@ -2,32 +2,56 @@ hello | hi | hey | greetings | good day :: Hello! How can I assist you today?
 how are you | how are you doing | status report :: I am fully operational, processing queries normally, and ready to help.
 who are you | what is your name | identify yourself :: I am **ArchWise**, an independent AI built and trained from scratch.
 who created you | who made you | who is the author :: I was developed by **ArchWiseDev**.
-what can you do | help | features | list capabilities :: Here are my current capabilities:
-- Natural language English query parsing
-- Math operations and basic evaluation
-- Information retrieval on grammar, science, and computing
-- Markdown-formatted explanations
+what can you do | help | features | list capabilities :: Functional scope:
+- Natural language query comprehension
+- Dynamic arithmetic calculation
+- Broad reference database spanning science, grammar, and computing
+- Formatted Markdown rendering
 what is english | define english | origin of english :: **English** is a West Germanic language that developed from Anglo-Frisian dialects brought to Britain. Today, it serves as the primary global language for business, science, aviation, and software engineering.
 what is grammar | define grammar :: **Grammar** is the structural foundation of language. It governs how words combine into phrases, clauses, and sentences through rules involving parts of speech, syntax, and punctuation.
-what is a noun :: A **noun** is a word that names a person, place, thing, or abstract idea (e.g., *computer*, *system*, *galaxy*).
-what is a verb :: A **verb** is a word describing an action, state of being, or occurrence (e.g., *execute*, *compute*, *exist*).
-what is an adjective :: An **adjective** is a word that modifies or describes a noun or pronoun by specifying quality, quantity, or state (e.g., *efficient*, *binary*, *fast*).
-what is syntax :: **Syntax** refers to the rules governing the arrangement of words and phrases to create well-formed sentences in both human and programming languages.
-what is artificial intelligence | what is ai :: **Artificial Intelligence (AI)** is the branch of computer science focused on creating systems capable of performing tasks that typically require human cognition, such as pattern recognition, decision-making, and text processing.
-what is machine learning | what is ml :: **Machine Learning** is a subset of AI where mathematical models learn patterns from training data to make predictions or decisions without being explicitly hardcoded for every scenario.
-what is an algorithm :: An **algorithm** is an unambiguous, step-by-step procedure or set of rules designed to solve a specific problem or execute a computation.
-what is a neural network :: A **neural network** is an information processing system inspired by biological nervous systems, using interconnected layers of nodes (neurons) and weighted connections to learn patterns.
-what is python :: **Python** is a high-level, interpreted programming language known for clean syntax, high readability, and extensive standard library support.
-what is linux | what is termux :: **Linux** is an open-source Unix-like operating system kernel. **Termux** is an Android terminal emulator and Linux environment that runs directly with no rooting required.
-what is git | what is github :: **Git** is a distributed version control system for tracking code changes. **GitHub** is a cloud-based platform for hosting Git repositories and managing collaborative workflows.
-what is computer science :: **Computer Science** is the study of computation, information processing, hardware-software architectures, and algorithmic theory.
-what is the solar system :: The **Solar System** consists of the Sun and the celestial objects bound to it by gravity, including eight planets: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune.
+what is a noun | explain nouns :: A **noun** is a word that represents a person, place, thing, or concept. Examples include *developer*, *server*, and *architecture*.
+what is a verb | explain verbs :: A **verb** is an action or state word that drives the predicate of a clause. Examples include *compile*, *execute*, and *compute*.
+what is an adjective | explain adjectives :: An **adjective** is a descriptor that qualifies, quantifies, or modifies a noun or pronoun. Examples include *efficient*, *binary*, and *recursive*.
+what is an adverb | explain adverbs :: An **adverb** modifies a verb, adjective, or another adverb, typically denoting manner, place, time, or degree (e.g., *rapidly*, *locally*, *extremely*).
+what is a pronoun :: A **pronoun** replaces a noun to avoid redundancy (e.g., *it*, *they*, *he*, *she*, *this*).
+what is syntax | explain syntax :: **Syntax** refers to the structural arrangement of words, symbols, and punctuation into valid phrases and sentences in both human tongues and formal programming grammars.
+what is semantics :: **Semantics** is the study of meaning in language and logic, distinguishing valid form from actual conceptual truth.
+what is punctuation :: **Punctuation** consists of standardized typographic marks (periods, commas, colons, semicolons) that establish cadence, hierarchy, and clause separation.
+what is a synonym :: A **synonym** is a word or phrase that means exactly or nearly the same as another word in the same language (e.g., *fast* and *rapid*).
+what is an antonym :: An **antonym** is a word having a meaning opposite to that of another word (e.g., *light* and *dark*, *true* and *false*).
+what is tense in english :: **Tense** locates an action in time:
+- **Past**: actions already concluded (*executed*)
+- **Present**: ongoing or invariant actions (*executes*)
+- **Future**: actions yet to occur (*will execute*)
+what is binary | what is a bit :: A **bit** (binary digit) is the fundamental unit of computation, holding either a **0** (off/false) or a **1** (on/true).
+what is a byte :: A **byte** consists of **8 contiguous bits**, capable of representing values from $0$ to $255$ ($2^8$ states).
+what is a cpu | central processing unit :: The **CPU** (Central Processing Unit) acts as the computational core of a system, repeatedly fetching, decoding, and executing machine instructions.
+what is ram | random access memory :: **RAM** is volatile primary storage providing high-speed read/write access to instructions and working data currently needed by the CPU.
+what is an operating system | what is os :: An **Operating System** is system software managing hardware resources (memory, processors, storage, peripherals) while providing abstraction APIs to userland software.
+what is an ip address :: An **IP Address** (Internet Protocol address) is a unique numerical identifier assigned to every device connected to a computer network that uses the Internet Protocol for communication.
+what is http | what is https :: **HTTP** (Hypertext Transfer Protocol) is the application-layer foundation of web data communication. **HTTPS** secures the exchange using Transport Layer Security (TLS) encryption.
+what is an api :: An **API** (Application Programming Interface) is a defined contract allowing different software systems to exchange data and request operations programmatically.
+what is an algorithm :: An **algorithm** is an unambiguous, finite sequence of computational steps designed to transform inputs into desired outputs.
+what is data structure :: A **data structure** is a specialized format for organizing, storing, and retrieving information efficiently (e.g., *arrays*, *hash maps*, *linked lists*, *trees*).
+what is time complexity | big o notation :: **Big-O notation** mathematically describes the limiting behavior and efficiency of an algorithm as the size of the input data ($n$) scales towards infinity.
+what is recursion :: **Recursion** is an algorithmic technique where a function calls itself directly or indirectly until reaching a defined base termination condition.
+what is an atom :: An **atom** is the basic unit of a chemical element, consisting of a central nucleus (protons and neutrons) surrounded by a cloud of negatively charged electrons.
+what is an electron :: An **electron** is a stable subatomic particle with a negative elementary electric charge ($e$).
+what is photosynthesis :: **Photosynthesis** is the biological process by which green plants and certain organisms convert sunlight, water, and carbon dioxide into oxygen and chemical energy stored in glucose.
 what is gravity :: **Gravity** is a fundamental interaction that causes mutual attraction between all things that possess mass or energy.
-what is the speed of light :: The speed of light in a vacuum is approximately **299,792,458 meters per second** (about $3 \times 10^8$ m/s).
-what is zero :: **Zero ($0$)** is an integer and numerical digit that represents an empty quantity, acts as the additive identity in mathematics, and forms the foundation of binary computing.
+what is the speed of light :: The speed of light in a vacuum is approximately **299,792,458 meters per second** ($3 \times 10^8$ m/s).
+what is the speed of sound :: The speed of sound through dry air at 20°C is roughly **343 meters per second**.
+what is energy :: **Energy** is the quantitative property transferred to a body or system that manifests as work done or as heat and radiation, conserved under the First Law of Thermodynamics.
+what is boolean logic :: **Boolean logic** is a branch of algebra involving truth values (**TRUE** and **FALSE**) governed by operations including **AND**, **OR**, and **NOT**.
+what is order of operations | pemdas :: **PEMDAS** defines operator precedence:
+1. **P**arentheses
+2. **E**xponents
+3. **M**ultiplication and **D**ivision (left to right)
+4. **A**ddition and **S**ubtraction (left to right)
 what is prime number | prime numbers :: A **prime number** is a natural number greater than 1 that has no positive divisors other than 1 and itself (e.g., 2, 3, 5, 7, 11, 13).
-tell me a joke | make me laugh :: Why do computers make terrible witnesses? Because they always give everything away in bytes!
+what is pi | define pi :: **$\pi$ (Pi)** is a mathematical constant representing the ratio of a Euclidean circle's circumference to its diameter, approximately equal to **3.14159**.
+tell me a joke | make me laugh :: Why do programmers prefer dark mode? Because light attracts bugs!
 thank you | thanks | appreciated :: You are welcome! Let me know if you want to explore more concepts.
 good morning :: Good morning! Ready whenever you are.
 good evening :: Good evening! How can I assist you tonight?
-good night | goodbye | bye | see you later :: Goodbye! Have a restful time, and feel free to return whenever you want to train or explore further.
+good night | goodbye | bye | see you later :: Goodbye! Feel free to return whenever you are ready.

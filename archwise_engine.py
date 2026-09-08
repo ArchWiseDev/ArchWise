@@ -11,6 +11,20 @@ WORD_NUMBERS = {
     "hundred": 100
 }
 
+STOPWORDS = {
+    "a", "an", "the", "in", "on", "at", "by", "for", "with",
+    "about", "against", "between", "into", "through", "during",
+    "before", "after", "above", "below", "to", "from", "up", "down"
+}
+
+def stem_word(w):
+    # Lightweight rule-based suffix stemming
+    suffixes = ("ing", "ly", "ed", "ous", "ies", "es", "s", "ment")
+    for s in suffixes:
+        if w.endswith(s) and len(w) > len(s) + 2:
+            return w[:-len(s)]
+    return w
+
 class ArchWiseEngine:
     def __init__(self):
         self.documents = []
@@ -26,19 +40,14 @@ class ArchWiseEngine:
 
     def _tokenize(self, text):
         clean = re.sub(r"[^a-zA-Z0-9\s]", " ", text.lower())
-        return [w for w in clean.split() if w]
+        raw_tokens = [w for w in clean.split() if w and w not in STOPWORDS]
+        return [stem_word(w) for w in raw_tokens]
 
     def _try_arithmetic(self, text):
         norm = text.lower().replace("what's", "what is").replace("whats", "what is")
-        tokens = self._tokenize(norm)
+        tokens = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", norm).split() if w]
         
-        converted = []
-        for t in tokens:
-            if t in WORD_NUMBERS:
-                converted.append(str(WORD_NUMBERS[t]))
-            else:
-                converted.append(t)
-        
+        converted = [str(WORD_NUMBERS[t]) if t in WORD_NUMBERS else t for t in tokens]
         reconstructed = " ".join(converted)
         
         match_add = re.search(r"(\d+)\s*(?:\+|\bplus\b)\s*(\d+)", reconstructed)
@@ -93,7 +102,6 @@ class ArchWiseEngine:
                 all_words.add(w)
 
         self.vocab = {word: idx for idx, word in enumerate(sorted(list(all_words)))}
-        # Smooth IDF
         self.idf = {word: math.log((1.0 + total_docs) / (1.0 + df[word])) + 1.0 for word in self.vocab}
         self.doc_vectors = [self._vectorize(doc) for doc in self.documents]
 
@@ -103,7 +111,6 @@ class ArchWiseEngine:
         for word, count in tf.items():
             if word in self.vocab:
                 idx = self.vocab[word]
-                # Sublinear term-frequency scaling
                 w_tf = 1.0 + math.log(count) if count > 0 else 0.0
                 vec[idx] = w_tf * self.idf[word]
         norm = math.sqrt(sum(x * x for x in vec))
@@ -153,7 +160,7 @@ class ArchWiseEngine:
                 best_score = sim
                 best_idx = i
 
-        if best_score < 0.25:
+        if best_score < 0.22:
             return random.choice(self.assistant_fallbacks)
 
         return self.responses[best_idx]
@@ -162,4 +169,4 @@ if __name__ == "__main__":
     engine = ArchWiseEngine()
     engine.train("corpus.txt")
     engine.save("model.json")
-    print(f"ArchWise Training Complete. Indexed {len(engine.vocab)} unique tokens across {len(engine.documents)} document patterns.")
+    print(f"Training Complete! Indexed {len(engine.vocab)} stem tokens across {len(engine.documents)} training patterns.")
