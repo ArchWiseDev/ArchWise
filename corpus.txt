@@ -1,18 +1,33 @@
-hello | hi | hey | greetings :: Hello! How can I assist you today?
-who are you | what is your name :: I am **ArchWise**, an AI assistant designed to learn language structures and assist users.
-who created you | who made you :: I was created by **ArchWiseDev**.
-what can you do | help | features :: As an AI system, I can:
-- Assist with general knowledge and definitions
-- Perform quick mathematical computations
-- Process text commands and discuss concepts
-- Format information using Markdown
-how are you | how are you doing :: I'm functioning well and ready to assist. How can I help you?
-what is one plus two | 1 + 2 | one plus two :: One plus two equals **3**.
-what is two plus two | 2 + 2 | two plus two :: Two plus two equals **4**.
-what is english :: **English** is a West Germanic language that is currently the primary international language for communication, science, and computing.
-what is ai | what is artificial intelligence :: **Artificial Intelligence (AI)** is the development of computer programs capable of performing tasks normally requiring human intelligence, such as visual perception, language processing, and decision-making.
-what is programming | what is code :: Programming is the process of writing instructions in languages like Python to instruct computers on how to perform specific operations.
-thank you | thanks :: You're welcome! Let me know if you need anything else.
-good morning :: Good morning! I hope you have a great day.
-good night | bye | goodbye :: Goodbye! Have a great time ahead.
-tell me a joke :: Why do programmers prefer dark mode? Because light attracts bugs!
+hello | hi | hey | greetings | good day :: Hello! How can I assist you today?
+how are you | how are you doing | status report :: I am fully operational, processing queries normally, and ready to help.
+who are you | what is your name | identify yourself :: I am **ArchWise**, an independent AI built and trained from scratch.
+who created you | who made you | who is the author :: I was developed by **ArchWiseDev**.
+what can you do | help | features | list capabilities :: Here are my current capabilities:
+- Natural language English query parsing
+- Math operations and basic evaluation
+- Information retrieval on grammar, science, and computing
+- Markdown-formatted explanations
+what is english | define english | origin of english :: **English** is a West Germanic language that developed from Anglo-Frisian dialects brought to Britain. Today, it serves as the primary global language for business, science, aviation, and software engineering.
+what is grammar | define grammar :: **Grammar** is the structural foundation of language. It governs how words combine into phrases, clauses, and sentences through rules involving parts of speech, syntax, and punctuation.
+what is a noun :: A **noun** is a word that names a person, place, thing, or abstract idea (e.g., *computer*, *system*, *galaxy*).
+what is a verb :: A **verb** is a word describing an action, state of being, or occurrence (e.g., *execute*, *compute*, *exist*).
+what is an adjective :: An **adjective** is a word that modifies or describes a noun or pronoun by specifying quality, quantity, or state (e.g., *efficient*, *binary*, *fast*).
+what is syntax :: **Syntax** refers to the rules governing the arrangement of words and phrases to create well-formed sentences in both human and programming languages.
+what is artificial intelligence | what is ai :: **Artificial Intelligence (AI)** is the branch of computer science focused on creating systems capable of performing tasks that typically require human cognition, such as pattern recognition, decision-making, and text processing.
+what is machine learning | what is ml :: **Machine Learning** is a subset of AI where mathematical models learn patterns from training data to make predictions or decisions without being explicitly hardcoded for every scenario.
+what is an algorithm :: An **algorithm** is an unambiguous, step-by-step procedure or set of rules designed to solve a specific problem or execute a computation.
+what is a neural network :: A **neural network** is an information processing system inspired by biological nervous systems, using interconnected layers of nodes (neurons) and weighted connections to learn patterns.
+what is python :: **Python** is a high-level, interpreted programming language known for clean syntax, high readability, and extensive standard library support.
+what is linux | what is termux :: **Linux** is an open-source Unix-like operating system kernel. **Termux** is an Android terminal emulator and Linux environment that runs directly with no rooting required.
+what is git | what is github :: **Git** is a distributed version control system for tracking code changes. **GitHub** is a cloud-based platform for hosting Git repositories and managing collaborative workflows.
+what is computer science :: **Computer Science** is the study of computation, information processing, hardware-software architectures, and algorithmic theory.
+what is the solar system :: The **Solar System** consists of the Sun and the celestial objects bound to it by gravity, including eight planets: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune.
+what is gravity :: **Gravity** is a fundamental interaction that causes mutual attraction between all things that possess mass or energy.
+what is the speed of light :: The speed of light in a vacuum is approximately **299,792,458 meters per second** (about $3 \times 10^8$ m/s).
+what is zero :: **Zero ($0$)** is an integer and numerical digit that represents an empty quantity, acts as the additive identity in mathematics, and forms the foundation of binary computing.
+what is prime number | prime numbers :: A **prime number** is a natural number greater than 1 that has no positive divisors other than 1 and itself (e.g., 2, 3, 5, 7, 11, 13).
+tell me a joke | make me laugh :: Why do computers make terrible witnesses? Because they always give everything away in bytes!
+thank you | thanks | appreciated :: You are welcome! Let me know if you want to explore more concepts.
+good morning :: Good morning! Ready whenever you are.
+good evening :: Good evening! How can I assist you tonight?
+good night | goodbye | bye | see you later :: Goodbye! Have a restful time, and feel free to return whenever you want to train or explore further.

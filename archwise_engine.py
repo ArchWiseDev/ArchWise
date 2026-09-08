@@ -7,7 +7,8 @@ from collections import Counter
 WORD_NUMBERS = {
     "zero": 0, "one": 1, "two": 2, "three": 3, "four": 4,
     "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9,
-    "ten": 10, "eleven": 11, "twelve": 12, "twenty": 20
+    "ten": 10, "eleven": 11, "twelve": 12, "twenty": 20,
+    "hundred": 100
 }
 
 class ArchWiseEngine:
@@ -18,9 +19,9 @@ class ArchWiseEngine:
         self.idf = {}
         self.doc_vectors = []
         self.assistant_fallbacks = [
-            "I'm not completely sure about that. Could you rephrase or ask in another way?",
-            "I don't have enough information on that topic at the moment. What else can I help you with?",
-            "I didn't quite catch that. Feel free to provide more context so I can assist you better."
+            "I do not have enough trained data on that specific concept yet. Feel free to ask about grammar, computer science, or mathematics!",
+            "That query falls outside my current baseline parameters. Could you rephrase or try another subject?",
+            "I have not yet indexed those exact terms. I am continuously learning fundamental English and technical concepts."
         ]
 
     def _tokenize(self, text):
@@ -40,23 +41,27 @@ class ArchWiseEngine:
         
         reconstructed = " ".join(converted)
         
-        # Addition
         match_add = re.search(r"(\d+)\s*(?:\+|\bplus\b)\s*(\d+)", reconstructed)
         if match_add:
             a, b = int(match_add.group(1)), int(match_add.group(2))
             return f"{a} + {b} = **{a + b}**"
 
-        # Subtraction
         match_sub = re.search(r"(\d+)\s*(?:\-|\bminus\b)\s*(\d+)", reconstructed)
         if match_sub:
             a, b = int(match_sub.group(1)), int(match_sub.group(2))
             return f"{a} - {b} = **{a - b}**"
 
-        # Multiplication
         match_mul = re.search(r"(\d+)\s*(?:\*|\btimes\b|\bmultiplied by\b)\s*(\d+)", reconstructed)
         if match_mul:
             a, b = int(match_mul.group(1)), int(match_mul.group(2))
             return f"{a} × {b} = **{a * b}**"
+
+        match_div = re.search(r"(\d+)\s*(?:\/|\bdivided by\b)\s*(\d+)", reconstructed)
+        if match_div:
+            a, b = int(match_div.group(1)), int(match_div.group(2))
+            if b == 0:
+                return "Division by zero is mathematically undefined."
+            return f"{a} / {b} = **{a / b:.2f}**"
 
         return None
 
@@ -88,7 +93,8 @@ class ArchWiseEngine:
                 all_words.add(w)
 
         self.vocab = {word: idx for idx, word in enumerate(sorted(list(all_words)))}
-        self.idf = {word: math.log((1 + total_docs) / (1 + df[word])) + 1 for word in self.vocab}
+        # Smooth IDF
+        self.idf = {word: math.log((1.0 + total_docs) / (1.0 + df[word])) + 1.0 for word in self.vocab}
         self.doc_vectors = [self._vectorize(doc) for doc in self.documents]
 
     def _vectorize(self, tokens):
@@ -97,7 +103,9 @@ class ArchWiseEngine:
         for word, count in tf.items():
             if word in self.vocab:
                 idx = self.vocab[word]
-                vec[idx] = count * self.idf[word]
+                # Sublinear term-frequency scaling
+                w_tf = 1.0 + math.log(count) if count > 0 else 0.0
+                vec[idx] = w_tf * self.idf[word]
         norm = math.sqrt(sum(x * x for x in vec))
         if norm > 0:
             vec = [x / norm for x in vec]
@@ -131,7 +139,7 @@ class ArchWiseEngine:
 
         tokens = self._tokenize(prompt)
         if not tokens:
-            return "How can I help you today?"
+            return "How can I assist you today?"
 
         query_vec = self._vectorize(tokens)
         if sum(query_vec) == 0:
@@ -145,7 +153,7 @@ class ArchWiseEngine:
                 best_score = sim
                 best_idx = i
 
-        if best_score < 0.2:
+        if best_score < 0.25:
             return random.choice(self.assistant_fallbacks)
 
         return self.responses[best_idx]
@@ -154,4 +162,4 @@ if __name__ == "__main__":
     engine = ArchWiseEngine()
     engine.train("corpus.txt")
     engine.save("model.json")
-    print("ArchWise Knowledge Base compiled successfully.")
+    print(f"ArchWise Training Complete. Indexed {len(engine.vocab)} unique tokens across {len(engine.documents)} document patterns.")
