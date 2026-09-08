@@ -86,7 +86,7 @@ class ArchWiseEngine:
         self.doc_vectors = []
         self.last_query = ""
         self.assistant_fallbacks = [
-            "I haven't indexed that specific concept yet. You can ask me about grammar, linguistics, writing tools, or mathematics!",
+            "I haven't indexed that specific concept yet. You can ask me to write an essay, explain grammar, calculate numbers, or summarize text!",
             "I'm not certain how to answer that with my current knowledge. Try rephrasing or asking for a grammatical explanation.",
             "That query falls outside my current baseline parameters, but I am continuously expanding my vocabulary."
         ]
@@ -105,6 +105,31 @@ class ArchWiseEngine:
                 else:
                     corrected.append(w)
         return [stem_word(w) for w in corrected if w not in STOPWORDS]
+
+    def _generate_essay(self, prompt):
+        match = re.search(r"\b(?:write\s+(?:an?\s+)?essay(?:\s+on|\s+about)?)\s*(.*)", prompt, re.IGNORECASE)
+        if not match:
+            return None
+        topic = match.group(1).strip()
+        if not topic:
+            topic = "the Importance of Language and Learning"
+
+        clean_topic = topic.strip("?.!")
+        return (
+            f"### Essay: The Significance of {clean_topic.title()}\n\n"
+            f"**Introduction**\n"
+            f"In the modern world, **{clean_topic}** plays a pivotal role in shaping ideas, systems, and human understanding. "
+            f"Examining this subject reveals not only its core principles, but also the broader implications it holds for society, science, and intellect.\n\n"
+            f"**Core Analysis**\n"
+            f"At its foundation, {clean_topic} functions as a dynamic framework. When analyzed through first principles, "
+            f"it demonstrates how interconnected concepts collaborate to create functional order. "
+            f"Whether through structured systems, clear rules, or continuous iteration, the underlying mechanics drive consistent progress and clarity.\n\n"
+            f"Furthermore, understanding {clean_topic} allows us to avoid common fallacies and superficial assumptions. "
+            f"By studying its nuances, practitioners and thinkers can optimize their methods and construct sustainable, reliable outcomes.\n\n"
+            f"**Conclusion**\n"
+            f"Ultimately, {clean_topic} is more than an isolated phenomenon; it is an essential catalyst for advancement. "
+            f"Continued dedication to exploring, refining, and applying its lessons ensures meaningful growth and deeper comprehension."
+        )
 
     def _rephrase(self, text):
         match = re.match(r"^rephrase:\s*(.*)", text, re.IGNORECASE)
@@ -210,20 +235,41 @@ class ArchWiseEngine:
         self.raw_vocab = set()
 
         with open(corpus_path, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line or "::" not in line:
-                    continue
-                patterns_part, reply = line.split("::", 1)
-                patterns = [p.strip() for p in patterns_part.split("|") if p.strip()]
-                reply = reply.strip().replace(r"\n", "\n")
-                for pat in patterns:
-                    clean_words = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", pat.lower()).split() if w]
-                    self.raw_vocab.update(clean_words)
-                    tokens = [stem_word(w) for w in clean_words if w not in STOPWORDS]
-                    if tokens:
-                        self.documents.append(tokens)
-                        self.responses.append(reply)
+            full_text = f.read()
+
+        # Split entries by double-colon delimiters cleanly across newlines
+        blocks = full_text.split("\n")
+        current_patterns = None
+        current_reply = []
+
+        for line in blocks:
+            line_str = line.strip()
+            if "::" in line_str:
+                if current_patterns and current_reply:
+                    reply_text = "\n".join(current_reply).strip()
+                    for pat in current_patterns:
+                        clean_words = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", pat.lower()).split() if w]
+                        self.raw_vocab.update(clean_words)
+                        tokens = [stem_word(w) for w in clean_words if w not in STOPWORDS]
+                        if tokens:
+                            self.documents.append(tokens)
+                            self.responses.append(reply_text)
+                parts = line_str.split("::", 1)
+                current_patterns = [p.strip() for p in parts[0].split("|") if p.strip()]
+                current_reply = [parts[1].strip()]
+            elif current_patterns:
+                if line_str:
+                    current_reply.append(line_str)
+
+        if current_patterns and current_reply:
+            reply_text = "\n".join(current_reply).strip()
+            for pat in current_patterns:
+                clean_words = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", pat.lower()).split() if w]
+                self.raw_vocab.update(clean_words)
+                tokens = [stem_word(w) for w in clean_words if w not in STOPWORDS]
+                if tokens:
+                    self.documents.append(tokens)
+                    self.responses.append(reply_text)
 
         total_docs = len(self.documents)
         df = Counter()
@@ -274,27 +320,32 @@ class ArchWiseEngine:
         self.doc_vectors = data["doc_vectors"]
 
     def generate(self, prompt):
-        # 1. Paraphrase generator check
+        # 1. Dynamic Essay Generator
+        essay_eval = self._generate_essay(prompt)
+        if essay_eval:
+            return essay_eval
+
+        # 2. Paraphrase Generator
         rephrase_eval = self._rephrase(prompt)
         if rephrase_eval:
             return rephrase_eval
 
-        # 2. Summarization check
+        # 3. Summarization Check
         summary = self._summarize(prompt)
         if summary:
             return summary
 
-        # 3. Grammar correction check
+        # 4. Grammar Check
         grammar_eval = self._correct_grammar(prompt)
         if grammar_eval:
             return grammar_eval
 
-        # 4. Arithmetic evaluation check
+        # 5. Arithmetic Check
         calc_result = self._try_arithmetic(prompt)
         if calc_result:
             return calc_result
 
-        # 5. Follow-up Context Resolution
+        # 6. Contextual Follow-up
         clean_input = prompt.strip().lower()
         if clean_input in FOLLOW_UP_TRIGGERS and self.last_query:
             tokens = self._tokenize(f"{self.last_query} details")
@@ -327,4 +378,4 @@ if __name__ == "__main__":
     engine = ArchWiseEngine()
     engine.train("corpus.txt")
     engine.save("model.json")
-    print(f"ArchWise v0.5 Compiled: Rephrase and morphological engine active across {len(engine.documents)} patterns.")
+    print(f"ArchWise engine recompiled with multiline preserving and essay generation support.")
