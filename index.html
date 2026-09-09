@@ -547,13 +547,16 @@
     });
   }
 
+  let localSessionsCache = {};
   function listenToSessions() {
     if (!currentUser) return;
     const q = query(collection(db, "users", currentUser.uid, "sessions"), orderBy("updated", "desc"));
     onSnapshot(q, (snap) => {
       const box = document.getElementById("history-box");
       box.innerHTML = "";
+      localSessionsCache = {};
       snap.forEach(d => {
+        localSessionsCache[d.id] = d.data();
         const item = document.createElement("div");
         item.className = `history-item ${d.id === activeSessionId ? "active" : ""}`;
         item.innerHTML = `<i class="fa-regular fa-message"></i><span>${d.data().title || d.id}</span>`;
