@@ -327,3 +327,10 @@ what is objective vs subjective :: Distinction:
 - **Objective**: Based on observable, verifiable facts independent of personal perception (*"Water boils at 100°C at standard pressure"*).
 - **Subjective**: Influenced by personal feelings, interpretations, or points of view (*"That algorithm is aesthetically pleasing"*).
 what is cognitive dissonance :: **Cognitive dissonance** is the psychological discomfort experienced by an individual holding two or more contradictory beliefs, values, or ideas simultaneously.
+how to deduce unknown words | unknown word context :: To infer the meaning of an **unfamiliar word**:
+1. **Analyze morphological affixes**: Identify familiar prefixes (*un-*, *re-*, *dis-*) and suffixes (*-tion*, *-ment*, *-ible*).
+2. **Inspect syntactic position**: Determine whether the token functions as a subject, verb, modifier, or object.
+3. **Evaluate surrounding semantic contrast**: Look for transitional markers (*however*, *unlike*, *such as*) that signal relationships.
+what is syntactic role :: A word's **syntactic role** defines its grammatical function within a sentence structure (e.g., subject, direct object, predicate, or adjunct).
+what is pragmatic tone :: **Pragmatic tone** is the deliberate adaptation of linguistic register—ranging from formal academic discourse to informal colloquial exchanges—to align with conversational context.
+what are auxiliary verbs :: **Auxiliary verbs** (e.g., *is, have, do, will, can*) combine with primary verbs to convey tense, mood, aspect, or voice.
