@@ -2,6 +2,8 @@ import re
 import math
 import json
 import random
+import ast
+import operator
 from collections import Counter
 
 WORD_NUMBERS = {
@@ -36,8 +38,50 @@ GRAMMAR_PATTERNS = [
     (r"\ban\s+([^aeiou\s]\w+)", r"a \1"),
 ]
 
-CASUAL_MARKERS = {"yo", "bruh", "nah", "yeah", "gimme", "wanna", "gonna", "sup", "lol", "dude", "hey"}
-FORMAL_MARKERS = {"furthermore", "consequently", "regarding", "therefore", "clarify", "synthesize", "analyze"}
+SAFE_OPERATORS = {
+    ast.Add: operator.add,
+    ast.Sub: operator.sub,
+    ast.Mult: operator.mul,
+    ast.Div: operator.truediv,
+    ast.Pow: operator.pow,
+    ast.Mod: operator.mod,
+    ast.USub: operator.neg,
+    ast.UAdd: operator.pos
+}
+
+def safe_eval(node):
+    if isinstance(node, ast.Constant):
+        if isinstance(node.value, (int, float)):
+            return node.value
+        raise ValueError("Non-numeric constant")
+    elif isinstance(node, ast.BinOp):
+        left = safe_eval(node.left)
+        right = safe_eval(node.right)
+        op_type = type(node.op)
+        if op_type in SAFE_OPERATORS:
+            if op_type == ast.Div and right == 0:
+                raise ZeroDivisionError("Division by zero")
+            if op_type == ast.Pow and (right > 100 or left > 10000):
+                raise ValueError("Exponent too large")
+            return SAFE_OPERATORS[op_type](left, right)
+        raise ValueError(f"Unsupported operation: {op_type}")
+    elif isinstance(node, ast.UnaryOp):
+        operand = safe_eval(node.operand)
+        op_type = type(node.op)
+        if op_type in SAFE_OPERATORS:
+            return SAFE_OPERATORS[op_type](operand)
+        raise ValueError("Unsupported unary operator")
+    elif isinstance(node, ast.Call):
+        if isinstance(node.func, ast.Name):
+            func_name = node.func.id.lower()
+            if func_name == "sqrt" and len(node.args) == 1:
+                val = safe_eval(node.args[0])
+                if val < 0:
+                    raise ValueError("Negative square root")
+                return math.sqrt(val)
+            elif func_name == "abs" and len(node.args) == 1:
+                return abs(safe_eval(node.args[0]))
+    raise ValueError("Invalid mathematical syntax")
 
 def extract_subwords(word, min_n=3, max_n=5):
     w = f"<{word}>"
@@ -57,14 +101,15 @@ class ArchWiseEngine:
         self.raw_patterns = []
         self.lexicon = {}
         self.synsets = {}
+        self.math_kb = {}
         self.last_query = ""
 
     def _detect_persona(self, text):
         clean = text.lower()
         words = set(re.findall(r"\b\w+\b", clean))
-        if words.intersection(CASUAL_MARKERS) or (len(words) <= 3 and not words.intersection(FORMAL_MARKERS)):
+        if words.intersection({"yo", "bruh", "nah", "yeah", "gimme", "wanna", "gonna", "sup", "lol", "dude"}):
             return "casual"
-        elif words.intersection(FORMAL_MARKERS) or len(text.split()) > 10:
+        elif words.intersection({"furthermore", "consequently", "regarding", "therefore", "clarify", "synthesize"}):
             return "formal"
         elif clean.count("!") >= 2 or clean.isupper():
             return "energetic"
@@ -77,8 +122,46 @@ class ArchWiseEngine:
         elif persona == "formal":
             return f"Regarding your inquiry:\n\n{response}"
         elif persona == "energetic":
-            return f"{response} Let's keep exploring!"
+            return f"{response} Let's solve more!"
         return response
+
+    def _lookup_math_kb(self, prompt):
+        clean = prompt.lower().strip()
+        for key, val in self.math_kb.items():
+            if key in clean:
+                return val
+        return None
+
+    def _evaluate_expression(self, text):
+        norm = text.lower()
+        norm = norm.replace("what is", "").replace("calculate", "").replace("solve", "").strip()
+        norm = norm.replace("times", "*").replace("multiplied by", "*")
+        norm = norm.replace("divided by", "/").replace("plus", "+").replace("minus", "-")
+        norm = norm.replace("^", "**")
+
+        # Convert word numbers to digits
+        tokens = norm.split()
+        converted = [str(WORD_NUMBERS[t]) if t in WORD_NUMBERS else t for t in tokens]
+        expr_candidate = "".join(converted)
+
+        # Allow basic functions like sqrt
+        if not re.search(r"[\d\+\-\*\/\^\%]", expr_candidate):
+            return None
+
+        clean_expr = re.sub(r"[^0-9\+\-\*\/\(\)\.\%\,\s_a-zA-Z]", "", expr_candidate).strip()
+
+        try:
+            tree = ast.parse(clean_expr, mode="eval")
+            res = safe_eval(tree.body)
+            if isinstance(res, float) and res.is_integer():
+                res = int(res)
+            elif isinstance(res, float):
+                res = round(res, 6)
+            return f"**Result**: `{clean_expr}` = **{res}**"
+        except ZeroDivisionError:
+            return "Division by zero is mathematically undefined."
+        except Exception:
+            return None
 
     def _lookup_lexicon(self, prompt):
         m = re.search(r"\b(?:what\s+is|what\s+are|define|meaning\s+of)\s+([a-zA-Z]+)\b", prompt.lower())
@@ -87,13 +170,6 @@ class ArchWiseEngine:
             if target in self.lexicon:
                 return f"**{target.title()}**: {self.lexicon[target]}"
         return None
-
-    def _expand_synonyms(self, words):
-        expanded = list(words)
-        for w in words:
-            if w in self.synsets:
-                expanded.extend(self.synsets[w][:2])
-        return expanded
 
     def _sentence_embedding(self, text):
         clean = re.sub(r"[^a-zA-Z0-9\s]", " ", text.lower())
@@ -124,7 +200,7 @@ class ArchWiseEngine:
     def _cosine_similarity(self, vec_a, vec_b):
         return sum(a * b for a, b in zip(vec_a, vec_b))
 
-    def train(self, corpus_path="corpus.txt", lexicon_path="lexicon.json", synsets_path="synsets.json"):
+    def train(self, corpus_path="corpus.txt", lexicon_path="lexicon.json", synsets_path="synsets.json", math_path="math_knowledge.json"):
         try:
             with open(lexicon_path, "r", encoding="utf-8") as lf:
                 self.lexicon = json.load(lf)
@@ -136,6 +212,12 @@ class ArchWiseEngine:
                 self.synsets = json.load(sf)
         except Exception:
             self.synsets = {}
+
+        try:
+            with open(math_path, "r", encoding="utf-8") as mf:
+                self.math_kb = json.load(mf)
+        except Exception:
+            self.math_kb = {}
 
         self.raw_patterns = []
         self.responses = []
@@ -196,35 +278,6 @@ class ArchWiseEngine:
                 corrected += "."
         return f"**Original**: *\"{target}\"*\n\n**Corrected**: *\"{corrected}\"*"
 
-    def _try_arithmetic(self, text):
-        norm = text.lower().replace("what's", "what is").replace("whats", "what is")
-        tokens = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", norm).split() if w]
-        converted = [str(WORD_NUMBERS[t]) if t in WORD_NUMBERS else t for t in tokens]
-        reconstructed = " ".join(converted)
-
-        match_add = re.search(r"(\d+)\s*(?:\+|\bplus\b)\s*(\d+)", reconstructed)
-        if match_add:
-            a, b = int(match_add.group(1)), int(match_add.group(2))
-            return f"{a} + {b} = **{a + b}**"
-
-        match_sub = re.search(r"(\d+)\s*(?:\-|\bminus\b)\s*(\d+)", reconstructed)
-        if match_sub:
-            a, b = int(match_sub.group(1)), int(match_sub.group(2))
-            return f"{a} - {b} = **{a - b}**"
-
-        match_mul = re.search(r"(\d+)\s*(?:\*|\btimes\b|\bmultiplied by\b)\s*(\d+)", reconstructed)
-        if match_mul:
-            a, b = int(match_mul.group(1)), int(match_mul.group(2))
-            return f"{a} × {b} = **{a * b}**"
-
-        match_div = re.search(r"(\d+)\s*(?:\/|\bdivided by\b)\s*(\d+)", reconstructed)
-        if match_div:
-            a, b = int(match_div.group(1)), int(match_div.group(2))
-            if b == 0:
-                return "Division by zero is mathematically undefined."
-            return f"{a} / {b} = **{a / b:.2f}**"
-        return None
-
     def save(self, filepath="model.json"):
         data = {
             "dim": self.dim,
@@ -236,7 +289,7 @@ class ArchWiseEngine:
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, separators=(",", ":"))
 
-    def load(self, filepath="model.json", lexicon_path="lexicon.json", synsets_path="synsets.json"):
+    def load(self, filepath="model.json", lexicon_path="lexicon.json", synsets_path="synsets.json", math_path="math_knowledge.json"):
         with open(filepath, "r", encoding="utf-8") as f:
             data = json.load(f)
         self.dim = data["dim"]
@@ -254,27 +307,37 @@ class ArchWiseEngine:
                 self.synsets = json.load(sf)
         except Exception:
             self.synsets = {}
+        try:
+            with open(math_path, "r", encoding="utf-8") as mf:
+                self.math_kb = json.load(mf)
+        except Exception:
+            self.math_kb = {}
 
     def generate(self, prompt):
         user_persona = self._detect_persona(prompt)
 
+        # 1. Grammar check
         grammar_eval = self._correct_grammar(prompt)
         if grammar_eval:
             return self._adapt_tone(grammar_eval, user_persona)
 
-        arithmetic = self._try_arithmetic(prompt)
-        if arithmetic:
-            return self._adapt_tone(arithmetic, user_persona)
+        # 2. Math Formula / Principle Knowledge Base Lookup
+        math_fact = self._lookup_math_kb(prompt)
+        if math_fact:
+            return self._adapt_tone(math_fact, user_persona)
 
+        # 3. Dynamic AST Math Evaluation
+        math_eval = self._evaluate_expression(prompt)
+        if math_eval:
+            return self._adapt_tone(math_eval, user_persona)
+
+        # 4. Fast Lexicon Lookup
         lex_match = self._lookup_lexicon(prompt)
         if lex_match:
             return self._adapt_tone(lex_match, user_persona)
 
-        # Synonym-expanded semantic projection
-        raw_words = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", prompt.lower()).split() if w and w not in STOPWORDS]
-        expanded_query = " ".join(self._expand_synonyms(raw_words)) if raw_words else prompt
-        query_vec = self._sentence_embedding(expanded_query)
-
+        # 5. Dense Subword Vector Match
+        query_vec = self._sentence_embedding(prompt)
         best_score = -1.0
         best_idx = -1
         for i, dvec in enumerate(self.doc_embeddings):
@@ -290,6 +353,6 @@ class ArchWiseEngine:
 
 if __name__ == "__main__":
     engine = ArchWiseEngine(dim=32)
-    engine.train("corpus.txt", "lexicon.json", "synsets.json")
+    engine.train("corpus.txt", "lexicon.json", "synsets.json", "math_knowledge.json")
     engine.save("model.json")
-    print(f"ArchWise v0.9 (3-Tier Engine) compiled successfully.")
+    print("ArchWise math-enabled AST engine compiled successfully.")
