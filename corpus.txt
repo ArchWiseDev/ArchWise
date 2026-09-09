@@ -12549,3 +12549,14 @@ what is trigonometry :: **Trigonometry** examines the relationships between the 
 difference between mass and weight in physics and math :: Distinction:
 - **Mass**: The intrinsic amount of matter in an object, measured in kilograms (kg), constant everywhere.
 - **Weight**: The gravitational force acting on that mass (**W = m × g**), measured in Newtons (N), variable by gravitational field.
+
+how to solve linear equation 2x plus 5 equals 15 :: **Solution**: Subtract 5 from both sides: 2x = 10. Divide by 2: **x = 5**.
+what is percentage increase formula :: **Solution**: Percentage Increase = **((New Value - Original Value) / Original Value) × 100**.
+how to find slope of a line :: **Solution**: Slope (m) = **(y2 - y1) / (x2 - x1)**, representing rise over run.
+what is midpoint formula :: **Solution**: The midpoint between two points is **((x1 + x2)/2, (y1 + y2)/2)**.
+what is distance formula in coordinate geometry :: **Solution**: Distance d = **√((x2 - x1)² + (y2 - y1)²)**.
+what is compound interest formula :: **Solution**: Compound Interest formula: **A = P(1 + r/n)^(nt)**, where P is principal, r is rate, n is compounding frequency, and t is time.
+how to find simple interest :: **Solution**: Simple Interest = **(P × R × T) / 100**, where P is principal, R is rate of interest, and T is time in years.
+what is binomial theorem :: **Solution**: The Binomial Theorem expands powers of binomials: **(x + y)^n = Σ (n choose k) x^(n-k) y^k**.
+how to find perimeter of rectangle :: **Solution**: Perimeter = **2 × (length + width)**.
+what is perimeter of circle :: **Solution**: The perimeter (circumference) of a circle is **C = 2πr**.
