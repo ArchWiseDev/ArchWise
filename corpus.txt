@@ -12542,3 +12542,10 @@ what else can you do | what are your capabilities :: I can:
 - **Explain scientific, philosophical, and architectural systems**.
 tell me more about language :: Human language operates on nested layers: **phonology** (sound patterns), **morphology** (word building blocks), **syntax** (sentence architecture), **semantics** (literal meaning), and **pragmatics** (contextual intent).
 what makes a sentence clear :: Sentence clarity depends on placing the **subject and main action close together**, eliminating redundant modifiers, and ensuring modifiers point unambiguously to the correct noun.
+what is calculus | define calculus :: **Calculus** is the branch of mathematics focused on continuous change, divided into **differential calculus** (rates of change and slopes) and **integral calculus** (accumulation of quantities and areas under curves).
+what is linear algebra :: **Linear algebra** is the study of linear equations, vector spaces, matrices, and linear transformations, forming the computational backbone of modern computer graphics and machine learning.
+what is discrete mathematics :: **Discrete mathematics** studies mathematical structures that are fundamentally discrete rather than continuous, including graph theory, set theory, propositional logic, and combinatorics.
+what is trigonometry :: **Trigonometry** examines the relationships between the sides and angles of triangles, particularly through trigonometric functions like sine, cosine, and tangent.
+difference between mass and weight in physics and math :: Distinction:
+- **Mass**: The intrinsic amount of matter in an object, measured in kilograms (kg), constant everywhere.
+- **Weight**: The gravitational force acting on that mass (**W = m × g**), measured in Newtons (N), variable by gravitational field.
