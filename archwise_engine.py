@@ -64,7 +64,7 @@ def extract_subwords(word, min_n=3, max_n=5):
     return subwords
 
 class ArchWiseEngine:
-    def __init__(self, dim=64):
+    def __init__(self, dim=32):
         self.dim = dim
         self.subword_vectors = {}
         self.doc_embeddings = []
@@ -88,18 +88,15 @@ class ArchWiseEngine:
 
     def _adapt_tone(self, response, persona):
         if persona == "casual":
-            # Direct, conversational, low fluff
             clean = response.replace("Furthermore, ", "").replace("Ultimately, ", "")
             return f"Got it. {clean}"
         elif persona == "formal":
-            # Academic, complete, articulated
             return f"Regarding your inquiry:\n\n{response}"
         elif persona == "energetic":
             return f"{response} Let me know if you want to push this further!"
         return response
 
     def _deduce_unknown_word(self, word, raw_sentence):
-        # Morphological inference
         role = "concept"
         if word.endswith("ly"):
             role = "manner/adverb (describing how an action is performed)"
@@ -187,10 +184,11 @@ class ArchWiseEngine:
                     all_subwords[sw] += 1
 
         random.seed(42)
-        for sw in all_subwords:
-            self.subword_vectors[sw] = [random.uniform(-0.5, 0.5) for _ in range(self.dim)]
+        # Keep top subwords to prevent exponential coordinate bloat
+        for sw, count in all_subwords.most_common(12000):
+            self.subword_vectors[sw] = [round(random.uniform(-0.5, 0.5), 4) for _ in range(self.dim)]
 
-        self.doc_embeddings = [self._sentence_embedding(pat) for pat in self.raw_patterns]
+        self.doc_embeddings = [[round(val, 4) for val in self._sentence_embedding(pat)] for pat in self.raw_patterns]
 
     def _correct_grammar(self, text):
         trigger = re.match(r"^(?:fix|correct|proofread|grammar check):\s*(.*)", text, re.IGNORECASE)
@@ -238,6 +236,7 @@ class ArchWiseEngine:
         return None
 
     def save(self, filepath="model.json"):
+        # Compact serialization: no indent spaces, floats rounded to 4 decimals
         data = {
             "dim": self.dim,
             "subword_vectors": self.subword_vectors,
@@ -247,7 +246,7 @@ class ArchWiseEngine:
             "known_words": list(self.known_words)
         }
         with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(data, f)
+            json.dump(data, f, separators=(",", ":"))
 
     def load(self, filepath="model.json"):
         with open(filepath, "r", encoding="utf-8") as f:
@@ -262,17 +261,14 @@ class ArchWiseEngine:
     def generate(self, prompt):
         user_persona = self._detect_persona(prompt)
 
-        # 1. Grammar check
         grammar_eval = self._correct_grammar(prompt)
         if grammar_eval:
             return self._adapt_tone(grammar_eval, user_persona)
 
-        # 2. Arithmetic check
         arithmetic = self._try_arithmetic(prompt)
         if arithmetic:
             return self._adapt_tone(arithmetic, user_persona)
 
-        # 3. Embedding retrieval
         query_vec = self._sentence_embedding(prompt)
         best_score = -1.0
         best_idx = -1
@@ -282,7 +278,6 @@ class ArchWiseEngine:
                 best_score = sim
                 best_idx = i
 
-        # 4. Unknown Word Grammatical Deduction
         if best_score < 0.42:
             raw_tokens = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", prompt.lower()).split() if w and w not in STOPWORDS]
             unknowns = [w for w in raw_tokens if w not in self.known_words]
@@ -294,7 +289,7 @@ class ArchWiseEngine:
         return self._adapt_tone(self.responses[best_idx], user_persona)
 
 if __name__ == "__main__":
-    engine = ArchWiseEngine(dim=64)
+    engine = ArchWiseEngine(dim=32)
     engine.train("corpus.txt")
     engine.save("model.json")
-    print("ArchWise tone-adaptive and morphological engine compiled successfully.")
+    print("ArchWise compact vector model compiled successfully.")
