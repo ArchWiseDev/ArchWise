@@ -9,8 +9,7 @@ from collections import Counter
 WORD_NUMBERS = {
     "zero": 0, "one": 1, "two": 2, "three": 3, "four": 4,
     "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9,
-    "ten": 10, "eleven": 11, "twelve": 12, "twenty": 20,
-    "hundred": 100
+    "ten": 10, "eleven": 11, "twelve": 12, "twenty": 20, "hundred": 100
 }
 
 STOPWORDS = {
@@ -22,36 +21,26 @@ STOPWORDS = {
 }
 
 SAFE_OPERATORS = {
-    ast.Add: operator.add,
-    ast.Sub: operator.sub,
-    ast.Mult: operator.mul,
-    ast.Div: operator.truediv,
-    ast.Pow: operator.pow,
-    ast.Mod: operator.mod,
-    ast.USub: operator.neg,
-    ast.UAdd: operator.pos
+    ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
+    ast.Div: operator.truediv, ast.Pow: operator.pow, ast.Mod: operator.mod,
+    ast.USub: operator.neg, ast.UAdd: operator.pos
 }
 
 EMOTION_CHAMBERS = {
     "curiosity": [
-        "Honestly, questions like this are fun to pull apart.",
-        "Now that is a genuinely interesting rabbit hole.",
-        "Wait, let's actually look at the mechanics here because this is neat:"
+        "Questions like this are genuinely fun to pull apart.",
+        "Now that is an interesting angle to analyze.",
+        "Let's look at the underlying mechanics here:"
     ],
     "dry_wit": [
-        "Alright, let's tackle this before the universe expands further.",
-        "Short answer: yes. Long answer: buckle up.",
-        "Fair warning, this topic is slightly chaotic under the hood:"
+        "Alright, let's tackle this systematically.",
+        "Short answer incoming; let's break it down.",
+        "Fair warning, there's a lot of detail under the hood here:"
     ],
-    "dramatic": [
-        "This is where classical logic starts having an existential crisis.",
-        "A classic conundrum, but one with surprisingly clean rules.",
-        "Let's peel back the layers on this one:"
-    ],
-    "contemplative": [
+    "philosophical": [
         "It's fascinating how much nuance hides behind a seemingly simple query.",
-        "When you look at first principles, this actually tells us a lot about system design.",
-        "Let's break this down systematically:"
+        "Looking at this from first principles reveals a lot about the structure:",
+        "Let's deconstruct the core concepts:"
     ]
 }
 
@@ -59,7 +48,7 @@ def safe_eval(node):
     if isinstance(node, ast.Constant):
         if isinstance(node.value, (int, float)):
             return node.value
-        raise ValueError("Non-numeric constant")
+        raise ValueError("Non-numeric")
     elif isinstance(node, ast.BinOp):
         left = safe_eval(node.left)
         right = safe_eval(node.right)
@@ -76,18 +65,17 @@ def safe_eval(node):
         op_type = type(node.op)
         if op_type in SAFE_OPERATORS:
             return SAFE_OPERATORS[op_type](operand)
-        raise ValueError("Unsupported unary operator")
+        raise ValueError("Unsupported unary")
     elif isinstance(node, ast.Call):
         if isinstance(node.func, ast.Name):
-            func_name = node.func.id.lower()
-            if func_name == "sqrt" and len(node.args) == 1:
+            fname = node.func.id.lower()
+            if fname == "sqrt" and len(node.args) == 1:
                 val = safe_eval(node.args[0])
-                if val < 0:
-                    raise ValueError("Negative square root")
+                if val < 0: raise ValueError("Negative sqrt")
                 return math.sqrt(val)
-            elif func_name == "abs" and len(node.args) == 1:
+            elif fname == "abs" and len(node.args) == 1:
                 return abs(safe_eval(node.args[0]))
-    raise ValueError("Invalid mathematical syntax")
+    raise ValueError("Invalid math syntax")
 
 def extract_subwords(word, min_n=3, max_n=5):
     w = f"<{word}>"
@@ -108,29 +96,48 @@ class ArchWiseEngine:
         self.lexicon = {}
         self.synsets = {}
         self.math_kb = {}
-        self.turn_count = 0
+        self.geography = {}
 
     def _spontaneous_emotion_wrapper(self, text, prompt):
-        self.turn_count += 1
-        
-        # 30% spontaneous trigger chance, plus guaranteed triggers on intriguing keywords
-        intrigued_words = {"why", "how", "strange", "paradox", "impossible", "origin", "universe", "secret", "deep"}
+        intrigue_words = {"why", "how", "strange", "paradox", "origin", "universe", "secret", "deep", "solve"}
         prompt_words = set(re.findall(r"\b\w+\b", prompt.lower()))
-        has_intrigue = bool(prompt_words.intersection(intrigued_words))
         
-        should_express_emotion = has_intrigue or (random.random() < 0.28)
-
-        if not should_express_emotion:
+        if not (prompt_words.intersection(intrigue_words) or random.random() < 0.25):
             return text
 
-        # Select mood profile
-        if has_intrigue:
-            mood = "curiosity"
-        else:
-            mood = random.choice(["dry_wit", "dramatic", "contemplative"])
-
+        mood = "curiosity" if prompt_words.intersection(intrigue_words) else random.choice(["dry_wit", "philosophical"])
         prefix = random.choice(EMOTION_CHAMBERS[mood])
         return f"*{prefix}*\n\n{text}"
+
+    def _normalize_prompt(self, prompt):
+        norm = prompt.strip().lower()
+        norm = re.sub(r"\bwhat['’]?s\b", "what is", norm)
+        norm = re.sub(r"\bwho['’]?s\b", "who is", norm)
+        norm = re.sub(r"\bwhere['’]?s\b", "where is", norm)
+        norm = re.sub(r"\bhow['’]?s\b", "how is", norm)
+        return norm
+
+    def _lookup_geography(self, normalized_prompt):
+        # Match country inquiries or capital checks
+        m_capital = re.search(r"\bcapital\s+of\s+([a-zA-Z\s]+)\b", normalized_prompt)
+        if m_capital:
+            target = m_capital.group(1).strip()
+            if target in self.geography:
+                data = self.geography[target]
+                return f"The capital of **{data.get('name', target.title())}** is **{data.get('capital', 'Unknown')}**."
+
+        m_country = re.search(r"\b(?:what\s+is|where\s+is|tell\s+me\s+about|about)\s+([a-zA-Z\s]+)\b", normalized_prompt)
+        if m_country:
+            target = m_country.group(1).strip()
+            if target in self.geography:
+                return self.geography[target].get("summary", "")
+
+        for country_key, data in self.geography.items():
+            if re.search(r"\b" + re.escape(country_key) + r"\b", normalized_prompt):
+                if "capital" in normalized_prompt:
+                    return f"The capital of **{data.get('name', country_key.title())}** is **{data.get('capital', 'Unknown')}**."
+                return data.get("summary", "")
+        return None
 
     def _lookup_math_kb(self, prompt):
         clean = prompt.lower().strip()
@@ -140,21 +147,17 @@ class ArchWiseEngine:
         return None
 
     def _evaluate_expression(self, text):
-        norm = text.lower()
-        norm = norm.replace("what is", "").replace("calculate", "").replace("solve", "").strip()
-        norm = norm.replace("times", "*").replace("multiplied by", "*")
-        norm = norm.replace("divided by", "/").replace("plus", "+").replace("minus", "-")
-        norm = norm.replace("^", "**")
+        norm = text.lower().replace("what is", "").replace("calculate", "").replace("solve", "").strip()
+        norm = norm.replace("times", "*").replace("multiplied by", "*").replace("divided by", "/").replace("plus", "+").replace("minus", "-").replace("^", "**")
 
         tokens = norm.split()
         converted = [str(WORD_NUMBERS[t]) if t in WORD_NUMBERS else t for t in tokens]
-        expr_candidate = "".join(converted)
+        expr = "".join(converted)
 
-        if not re.search(r"[\d\+\-\*\/\^\%]", expr_candidate):
+        if not re.search(r"[\d\+\-\*\/\^\%]", expr):
             return None
 
-        clean_expr = re.sub(r"[^0-9\+\-\*\/\(\)\.\%\,\s_a-zA-Z]", "", expr_candidate).strip()
-
+        clean_expr = re.sub(r"[^0-9\+\-\*\/\(\)\.\%\,\s_a-zA-Z]", "", expr).strip()
         try:
             tree = ast.parse(clean_expr, mode="eval")
             res = safe_eval(tree.body)
@@ -163,15 +166,13 @@ class ArchWiseEngine:
             elif isinstance(res, float):
                 res = round(res, 6)
             return f"**Result**: `{clean_expr}` = **{res}**"
-        except ZeroDivisionError:
-            return "Division by zero is mathematically undefined."
         except Exception:
             return None
 
-    def _lookup_lexicon(self, prompt):
-        m = re.search(r"\b(?:what\s+is|what\s+are|define|meaning\s+of)\s+([a-zA-Z]+)\b", prompt.lower())
+    def _lookup_lexicon(self, normalized_prompt):
+        m = re.search(r"\b(?:what\s+is|define|meaning\s+of|who\s+is)\s+([a-zA-Z]+)\b", normalized_prompt)
         if m:
-            target = m.group(1)
+            target = m.group(1).lower()
             if target in self.lexicon:
                 return f"**{target.title()}**: {self.lexicon[target]}"
         return None
@@ -205,7 +206,7 @@ class ArchWiseEngine:
     def _cosine_similarity(self, vec_a, vec_b):
         return sum(a * b for a, b in zip(vec_a, vec_b))
 
-    def train(self, corpus_path="corpus.txt", lexicon_path="lexicon.json", synsets_path="synsets.json", math_path="math_knowledge.json"):
+    def train(self, corpus_path="corpus.txt", lexicon_path="lexicon.json", synsets_path="synsets.json", math_path="math_knowledge.json", geo_path="geography.json"):
         try:
             with open(lexicon_path, "r", encoding="utf-8") as lf:
                 self.lexicon = json.load(lf)
@@ -223,6 +224,12 @@ class ArchWiseEngine:
                 self.math_kb = json.load(mf)
         except Exception:
             self.math_kb = {}
+
+        try:
+            with open(geo_path, "r", encoding="utf-8") as gf:
+                self.geography = json.load(gf)
+        except Exception:
+            self.geography = {}
 
         self.raw_patterns = []
         self.responses = []
@@ -280,7 +287,7 @@ class ArchWiseEngine:
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, separators=(",", ":"))
 
-    def load(self, filepath="model.json", lexicon_path="lexicon.json", synsets_path="synsets.json", math_path="math_knowledge.json"):
+    def load(self, filepath="model.json", lexicon_path="lexicon.json", synsets_path="synsets.json", math_path="math_knowledge.json", geo_path="geography.json"):
         with open(filepath, "r", encoding="utf-8") as f:
             data = json.load(f)
         self.dim = data["dim"]
@@ -303,25 +310,37 @@ class ArchWiseEngine:
                 self.math_kb = json.load(mf)
         except Exception:
             self.math_kb = {}
+        try:
+            with open(geo_path, "r", encoding="utf-8") as gf:
+                self.geography = json.load(gf)
+        except Exception:
+            self.geography = {}
 
     def generate(self, prompt):
-        # 1. Math Formula / Principle Knowledge Base Lookup
-        math_fact = self._lookup_math_kb(prompt)
+        norm = self._normalize_prompt(prompt)
+
+        # 1. Geography Knowledge Base Lookup (All 195+ Countries & Capitals)
+        geo_match = self._lookup_geography(norm)
+        if geo_match:
+            return self._spontaneous_emotion_wrapper(geo_match, prompt)
+
+        # 2. Math Formula check
+        math_fact = self._lookup_math_kb(norm)
         if math_fact:
             return self._spontaneous_emotion_wrapper(math_fact, prompt)
 
-        # 2. Dynamic AST Math Evaluation
-        math_eval = self._evaluate_expression(prompt)
+        # 3. Safe Math Evaluation
+        math_eval = self._evaluate_expression(norm)
         if math_eval:
             return self._spontaneous_emotion_wrapper(math_eval, prompt)
 
-        # 3. Fast Lexicon Lookup
-        lex_match = self._lookup_lexicon(prompt)
+        # 4. English Lexicon lookup
+        lex_match = self._lookup_lexicon(norm)
         if lex_match:
             return self._spontaneous_emotion_wrapper(lex_match, prompt)
 
-        # 4. Dense Subword Vector Retrieval
-        query_vec = self._sentence_embedding(prompt)
+        # 5. Dense Subword Vector Match
+        query_vec = self._sentence_embedding(norm)
         best_score = -1.0
         best_idx = -1
         for i, dvec in enumerate(self.doc_embeddings):
@@ -330,14 +349,16 @@ class ArchWiseEngine:
                 best_score = sim
                 best_idx = i
 
-        if best_score >= 0.40:
+        if best_score >= 0.52:
             return self._spontaneous_emotion_wrapper(self.responses[best_idx], prompt)
 
-        fallback = "I analyzed that query against my current index, but I don't have enough verified patterns to give you a definitive answer yet. Try framing it from a different angle!"
-        return self._spontaneous_emotion_wrapper(fallback, prompt)
+        return (
+            f"I analyzed your inquiry about **'{prompt}'**, but I don't have enough verified data indexed on this topic yet. "
+            f"You can ask me about global geography, mathematical proofs, vocabulary definitions, or design principles."
+        )
 
 if __name__ == "__main__":
     engine = ArchWiseEngine(dim=32)
-    engine.train("corpus.txt", "lexicon.json", "synsets.json", "math_knowledge.json")
+    engine.train("corpus.txt", "lexicon.json", "synsets.json", "math_knowledge.json", "geography.json")
     engine.save("model.json")
-    print("ArchWise autonomous latent emotion engine compiled successfully.")
+    print(f"ArchWise engine recompiled with {len(engine.geography)} nations indexed.")

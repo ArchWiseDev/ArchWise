@@ -2,50 +2,55 @@ import http.server
 import socketserver
 import json
 import os
+import traceback
 from archwise_engine import ArchWiseEngine
 
 PORT = 8080
 
-# Initialize and load the pre-trained 3-tier engine
 engine = ArchWiseEngine(dim=32)
 if os.path.exists("model.json"):
-    engine.load("model.json", "lexicon.json", "synsets.json")
-    print("ArchWise 3-Tier Model loaded into active memory.")
+    print("Loading existing ArchWise model with full geography...")
+    engine.load("model.json", "lexicon.json", "synsets.json", "math_knowledge.json", "geography.json")
 else:
-    print("model.json not found. Compiling from scratch...")
-    engine.train("corpus.txt", "lexicon.json", "synsets.json")
+    print("No model.json detected. Training from corpus...")
+    engine.train("corpus.txt", "lexicon.json", "synsets.json", "math_knowledge.json", "geography.json")
     engine.save("model.json")
 
 class ArchWiseHandler(http.server.SimpleHTTPRequestHandler):
     def do_POST(self):
         if self.path == "/api/chat":
-            content_length = int(self.headers["Content-Length"])
-            post_data = self.rfile.read(content_length)
-            
             try:
-                payload = json.loads(post_data.decode("utf-8"))
-                user_message = payload.get("message", "").strip()
+                content_len = int(self.headers.get("Content-Length", 0))
+                post_body = self.rfile.read(content_len).decode("utf-8")
                 
-                if not user_message:
-                    response_text = "Please enter a valid query."
+                data = json.loads(post_body)
+                user_msg = data.get("message", "").strip()
+                
+                if not user_msg:
+                    reply_text = "Please enter a message."
                 else:
-                    response_text = engine.generate(user_message)
-                    
-                response_data = {"reply": response_text}
+                    reply_text = engine.generate(user_msg)
+
+                payload = json.dumps({"reply": reply_text}).encode("utf-8")
                 
                 self.send_response(200)
-                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Content-Length", str(len(payload)))
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
-                self.wfile.write(json.dumps(response_data).encode("utf-8"))
-                
+                self.wfile.write(payload)
+
             except Exception as e:
+                traceback.print_exc()
+                err_payload = json.dumps({"reply": f"Engine runtime exception: {str(e)}"}).encode("utf-8")
                 self.send_response(500)
-                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Content-Length", str(len(err_payload)))
+                self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
-                self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
+                self.wfile.write(err_payload)
         else:
-            self.send_error(404, "Endpoint not found")
+            self.send_error(404, "Endpoint Not Found")
 
     def do_OPTIONS(self):
         self.send_response(200)
@@ -57,8 +62,8 @@ class ArchWiseHandler(http.server.SimpleHTTPRequestHandler):
 if __name__ == "__main__":
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("", PORT), ArchWiseHandler) as httpd:
-        print(f"ArchWise serving on http://localhost:{PORT} (Press Ctrl+C to stop)")
+        print(f"ArchWise engine online at http://localhost:{PORT}")
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
-            print("\nServer shutting down cleanly.")
+            print("\nShutting down server.")
