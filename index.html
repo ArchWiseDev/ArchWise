@@ -403,7 +403,13 @@
       <button class="icon-btn" id="mobile-menu-btn"><i class="fa-solid fa-bars"></i></button>
       <div class="gemini-title">ArchWise <span class="gemini-sparkle">2.0</span></div>
     </div>
-    <div style="display:flex; gap:6px;">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <select id="persona-select" style="background:var(--bg-surface); color:var(--text-secondary); border:1px solid var(--border-subtle); border-radius:12px; padding:6px 12px; font-size:0.82rem; outline:none; cursor:pointer;">
+        <option value="standard">🤖 Standard AI</option>
+        <option value="coder">💻 Expert Coder</option>
+        <option value="concise">⚡ Ultra Concise</option>
+        <option value="pirate">🏴‍☠️ Pirate Mode</option>
+      </select>
       <button class="icon-btn" title="API Gateway Key" onclick="openKeyVault()"><i class="fa-solid fa-key"></i></button>
     </div>
   </div>
@@ -659,10 +665,11 @@
     const endpoint = base ? `${base}/api/chat` : `/api/chat`;
 
     try {
+      const persona = document.getElementById("persona-select").value;
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: text })
+        body: JSON.stringify({ prompt: text, persona: persona })
       });
       const data = await res.json();
       appendMessageBubble(data.response, false, true);

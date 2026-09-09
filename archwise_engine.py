@@ -324,7 +324,18 @@ class ArchWiseEngine:
             except Exception:
                 setattr(self, attr, {})
 
-    def generate(self, prompt):
+    def _apply_persona(self, text, persona):
+        if persona == "coder":
+            return f"```text\n# [Mode: Expert Coder]\n```\n\n" + text
+        elif persona == "concise":
+            # Strip text down to the first paragraph/sentence block
+            lines = [l for l in text.split("\n") if l.strip()]
+            return lines[0] if lines else text
+        elif persona == "pirate":
+            return "Ahoy matey! " + text.replace("is", "be").replace("are", "be") + " Arr!"
+        return text
+
+    def generate(self, prompt, persona="standard"):
         # 1. Inspect URL links directly
         url_match = re.search(r"https?://[^\s]+", prompt)
         if url_match:
@@ -335,7 +346,7 @@ class ArchWiseEngine:
         # 2. Exact trained response match
         for idx, pat in enumerate(self.raw_patterns):
             if norm == pat or prompt.lower().strip() == pat:
-                return self.responses[idx]
+                return self._apply_persona(self.responses[idx], persona)
 
         # 3. Subjective / Opinion Analysis Gate
         if any(w in norm.split() for w in OPINION_KEYWORDS):
@@ -346,7 +357,7 @@ class ArchWiseEngine:
         # 4. Local Omnibus exact match (code snippets, HTML/CSS)
         clean_target = re.sub(r"^(what is|who is|tell me about|define|how to)\s+", "", norm).strip()
         if clean_target in self.omnibus:
-            return self.omnibus[clean_target]
+            return self._apply_persona(self.omnibus[clean_target], persona)
 
         for key, val in self.omnibus.items():
             if key in norm and len(key) > 5:
@@ -374,7 +385,7 @@ class ArchWiseEngine:
         # 7. Semantic Content-Inspected Encyclopedic Match
         pedia_match = self._query_wikipedia_by_content(prompt)
         if pedia_match:
-            return pedia_match
+            return self._apply_persona(pedia_match, persona)
 
         # 8. High-threshold Vector Match (0.75)
         query_vec = self._sentence_embedding(norm)

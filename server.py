@@ -99,7 +99,8 @@ class ArchWiseHandler(http.server.BaseHTTPRequestHandler):
 
         if self.path in ("/api/chat", "/chat"):
             prompt = payload.get("prompt", "")
-            reply = engine.generate(prompt)
+            persona = payload.get("persona", "standard")
+            reply = engine.generate(prompt, persona)
             return self._send_json(200, {"response": reply})
 
         elif self.path == "/api/keys/generate":
@@ -120,7 +121,8 @@ class ArchWiseHandler(http.server.BaseHTTPRequestHandler):
                 return self._send_json(401, {"error": client_or_err})
 
             prompt = payload.get("prompt", "")
-            reply = engine.generate(prompt)
+            persona = payload.get("persona", "standard")
+            reply = engine.generate(prompt, persona)
             return self._send_json(200, {"response": reply, "client": client_or_err})
 
         else:
