@@ -12626,3 +12626,7 @@ def managed_resource():
 
 with managed_resource() as res:
     print(f"Processing with {res}")
+what is dynamic programming | define dynamic programming :: **Dynamic Programming (DP)** solves complex problems by breaking them into overlapping subproblems with optimal substructure. Techniques include:
+- **Memoization (Top-Down)**: Caching recursive results.
+- **Tabulation (Bottom-Up)**: Iteratively filling a lookup table to avoid recursion overhead.
+how does quicksort partition work :: The partition step selects a pivot element, rearranges elements so values smaller than the pivot move to the left and larger to the right, and returns the pivot index to recursively sort both partitions in **O(n log n)** average time.
