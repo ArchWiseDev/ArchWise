@@ -19,21 +19,6 @@ STOPWORDS = {
     "of", "and", "or", "that", "this", "do", "does", "did", "i"
 }
 
-SYNONYMS = {
-    "fast": ["rapid", "swift", "quick"],
-    "slow": ["gradual", "unhurried", "sluggish"],
-    "big": ["large", "massive", "substantial"],
-    "small": ["compact", "tiny", "diminutive"],
-    "good": ["excellent", "favorable", "effective"],
-    "bad": ["flawed", "suboptimal", "deficient"],
-    "important": ["crucial", "essential", "vital"],
-    "difficult": ["complex", "challenging", "demanding"],
-    "easy": ["straightforward", "simple", "effortless"],
-    "help": ["assist", "support", "aid"],
-    "build": ["construct", "develop", "assemble"],
-    "learn": ["acquire", "grasp", "absorb"]
-}
-
 GRAMMAR_PATTERNS = [
     (r"\b(he|she|it)\s+go\b", r"\1 goes"),
     (r"\b(he|she|it)\s+dont\b", r"\1 doesn't"),
@@ -71,6 +56,7 @@ class ArchWiseEngine:
         self.responses = []
         self.raw_patterns = []
         self.lexicon = {}
+        self.synsets = {}
         self.last_query = ""
 
     def _detect_persona(self, text):
@@ -91,17 +77,23 @@ class ArchWiseEngine:
         elif persona == "formal":
             return f"Regarding your inquiry:\n\n{response}"
         elif persona == "energetic":
-            return f"{response} Let me know if you want to explore further!"
+            return f"{response} Let's keep exploring!"
         return response
 
     def _lookup_lexicon(self, prompt):
-        # Match "what is X", "define X", "meaning of X"
         m = re.search(r"\b(?:what\s+is|what\s+are|define|meaning\s+of)\s+([a-zA-Z]+)\b", prompt.lower())
         if m:
             target = m.group(1)
             if target in self.lexicon:
                 return f"**{target.title()}**: {self.lexicon[target]}"
         return None
+
+    def _expand_synonyms(self, words):
+        expanded = list(words)
+        for w in words:
+            if w in self.synsets:
+                expanded.extend(self.synsets[w][:2])
+        return expanded
 
     def _sentence_embedding(self, text):
         clean = re.sub(r"[^a-zA-Z0-9\s]", " ", text.lower())
@@ -132,13 +124,18 @@ class ArchWiseEngine:
     def _cosine_similarity(self, vec_a, vec_b):
         return sum(a * b for a, b in zip(vec_a, vec_b))
 
-    def train(self, corpus_path="corpus.txt", lexicon_path="lexicon.json"):
-        # Load 15,000-word instant lexicon
+    def train(self, corpus_path="corpus.txt", lexicon_path="lexicon.json", synsets_path="synsets.json"):
         try:
             with open(lexicon_path, "r", encoding="utf-8") as lf:
                 self.lexicon = json.load(lf)
         except Exception:
             self.lexicon = {}
+
+        try:
+            with open(synsets_path, "r", encoding="utf-8") as sf:
+                self.synsets = json.load(sf)
+        except Exception:
+            self.synsets = {}
 
         self.raw_patterns = []
         self.responses = []
@@ -239,7 +236,7 @@ class ArchWiseEngine:
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, separators=(",", ":"))
 
-    def load(self, filepath="model.json", lexicon_path="lexicon.json"):
+    def load(self, filepath="model.json", lexicon_path="lexicon.json", synsets_path="synsets.json"):
         with open(filepath, "r", encoding="utf-8") as f:
             data = json.load(f)
         self.dim = data["dim"]
@@ -252,27 +249,32 @@ class ArchWiseEngine:
                 self.lexicon = json.load(lf)
         except Exception:
             self.lexicon = {}
+        try:
+            with open(synsets_path, "r", encoding="utf-8") as sf:
+                self.synsets = json.load(sf)
+        except Exception:
+            self.synsets = {}
 
     def generate(self, prompt):
         user_persona = self._detect_persona(prompt)
 
-        # 1. Grammar check
         grammar_eval = self._correct_grammar(prompt)
         if grammar_eval:
             return self._adapt_tone(grammar_eval, user_persona)
 
-        # 2. Arithmetic check
         arithmetic = self._try_arithmetic(prompt)
         if arithmetic:
             return self._adapt_tone(arithmetic, user_persona)
 
-        # 3. Fast Lexicon Lookup (15,000 words)
         lex_match = self._lookup_lexicon(prompt)
         if lex_match:
             return self._adapt_tone(lex_match, user_persona)
 
-        # 4. Dense Semantic Embedding Match
-        query_vec = self._sentence_embedding(prompt)
+        # Synonym-expanded semantic projection
+        raw_words = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", prompt.lower()).split() if w and w not in STOPWORDS]
+        expanded_query = " ".join(self._expand_synonyms(raw_words)) if raw_words else prompt
+        query_vec = self._sentence_embedding(expanded_query)
+
         best_score = -1.0
         best_idx = -1
         for i, dvec in enumerate(self.doc_embeddings):
@@ -281,13 +283,13 @@ class ArchWiseEngine:
                 best_score = sim
                 best_idx = i
 
-        if best_score >= 0.45:
+        if best_score >= 0.42:
             return self._adapt_tone(self.responses[best_idx], user_persona)
 
         return self._adapt_tone("I analyzed your input, but I don't have enough verified information on that specific topic yet. Could you rephrase or ask another question?", user_persona)
 
 if __name__ == "__main__":
     engine = ArchWiseEngine(dim=32)
-    engine.train("corpus.txt", "lexicon.json")
+    engine.train("corpus.txt", "lexicon.json", "synsets.json")
     engine.save("model.json")
-    print(f"ArchWise Two-Tier Engine compiled with {len(engine.lexicon)} lexicon words and {len(engine.raw_patterns)} discourse patterns.")
+    print(f"ArchWise v0.9 (3-Tier Engine) compiled successfully.")
