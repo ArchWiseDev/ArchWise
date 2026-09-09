@@ -12560,3 +12560,19 @@ how to find simple interest :: **Solution**: Simple Interest = **(P × R × T) /
 what is binomial theorem :: **Solution**: The Binomial Theorem expands powers of binomials: **(x + y)^n = Σ (n choose k) x^(n-k) y^k**.
 how to find perimeter of rectangle :: **Solution**: Perimeter = **2 × (length + width)**.
 what is perimeter of circle :: **Solution**: The perimeter (circumference) of a circle is **C = 2πr**.
+what is newton first law of motion | inertia law :: Newton's First Law (Law of Inertia) states that an object remains at rest or continues at constant velocity unless acted upon by an external net force.
+what is newton second law of motion | f equals ma :: Newton's Second Law defines force: **F = m × a** (Force equals mass multiplied by acceleration).
+what is newton third law of motion | action reaction :: Newton's Third Law states that for every action, there is an equal and opposite reaction.
+what is the first law of thermodynamics | energy conservation :: The First Law of Thermodynamics (Conservation of Energy) states that energy cannot be created or destroyed, only transformed from one form to another (**ΔU = Q - W**).
+what is the second law of thermodynamics | entropy :: The Second Law of Thermodynamics states that the total entropy of an isolated system always increases over time, dictating the thermodynamic arrow of time.
+what is ohms law | v equals ir :: Ohm's Law relates voltage, current, and resistance in electrical circuits: **V = I × R**.
+what is coulomb law :: Coulomb's Law calculates the electrostatic force between two point charges: **F = k × (|q1 × q2| / r²)**.
+what is einstein mass energy equivalence | e equals mc squared :: Einstein's mass-energy equivalence principle states that energy equals mass multiplied by the speed of light squared: **E = mc²**.
+what is big o notation | computational complexity :: Big O notation measures the asymptotic upper bound of an algorithm's execution time or space consumption as input size (n) scales toward infinity.
+what is binary search time complexity :: Binary search operates in **O(log n)** time on sorted arrays by repeatedly halving the search space.
+what is quicksort time complexity :: Quicksort has an average-case time complexity of **O(n log n)** and a worst-case of **O(n²)** when pivot selection is degraded.
+what is bubble sort time complexity :: Bubble sort runs in **O(n²)** time complexity in both average and worst cases due to adjacent comparisons.
+what is an acid vs base in chemistry :: Distinction: Acids donate hydrogen ions (protons, H+) in aqueous solutions (pH < 7), while bases accept protons or donate hydroxide ions (OH-) (pH > 7).
+what is the ideal gas law | pv equals nrt :: The Ideal Gas Law equates state variables of a hypothetical gas: **PV = nRT** (Pressure × Volume = moles × gas constant × Temperature).
+what is avogadro number :: Avogadro's number is approximately **6.022 × 10²³**, representing the number of constituent particles per mole of substance.
+what is radioactive half life :: Half-life is the duration required for one-half of the radioactive atomic nuclei in a sample to undergo decay: **N(t) = N0 × (1/2)^(t / t_half)**.
