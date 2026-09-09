@@ -446,6 +446,8 @@
   <!-- Capsule Input -->
   <div id="input-container">
     <div class="input-capsule">
+      <input type="file" id="file-upload-input" style="display:none;" accept=".txt,.py,.js,.json,.md,.html,.css">
+      <button class="icon-btn" id="attach-btn" title="Upload File / Code" style="width:36px; height:36px; margin-bottom:2px; color:var(--text-secondary);"><i class="fa-solid fa-paperclip"></i></button>
       <textarea id="prompt-textarea" rows="1" placeholder="Ask ArchWise..." autofocus></textarea>
       <button class="icon-btn" id="mic-action-btn" title="Voice Input" style="width:36px; height:36px; margin-bottom:2px; color:var(--text-secondary);"><i class="fa-solid fa-microphone" id="mic-icon"></i></button>
       <button class="capsule-send-btn" id="send-action-btn" disabled><i class="fa-solid fa-arrow-up"></i></button>
@@ -648,11 +650,19 @@
   }
 
   async function handleSend() {
-    const text = textarea.value.trim();
-    if (!text) return;
+    let text = textarea.value.trim();
+    if (!text && !attachedFileContent) return;
 
-    appendMessageBubble(text, true);
-    if (window.saveMessage) window.saveMessage(text, true);
+    let fullPrompt = text;
+    if (attachedFileContent) {
+      fullPrompt = `[Attached File: ${attachedFileName}]\n\`\`\`\n${attachedFileContent}\n\`\`\`\n\nUser Request: ${text}`;
+      attachedFileContent = "";
+      attachedFileName = "";
+      textarea.placeholder = "Ask ArchWise...";
+    }
+
+    appendMessageBubble(fullPrompt, true);
+    if (window.saveMessage) window.saveMessage(fullPrompt, true);
     textarea.value = "";
     textarea.style.height = "24px";
     sendBtn.disabled = true;
@@ -747,6 +757,29 @@
       if (textarea.value.trim()) handleSend();
     }
   });
+
+  
+  // File Upload Logic
+  const attachBtn = document.getElementById("attach-btn");
+  const fileInput = document.getElementById("file-upload-input");
+  let attachedFileContent = "";
+  let attachedFileName = "";
+
+  attachBtn.onclick = () => fileInput.click();
+
+  fileInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      attachedFileContent = event.target.result;
+      attachedFileName = file.name;
+      textarea.placeholder = `Attached: ${file.name} (Ready)`;
+      textarea.focus();
+      sendBtn.disabled = false;
+    };
+    reader.readAsText(file);
+  };
 
   sendBtn.onclick = handleSend;
 
