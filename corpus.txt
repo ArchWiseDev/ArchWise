@@ -12612,3 +12612,17 @@ async function loadData(url) {
     console.error("Fetch failure:", err);
   }
 }
+how to create custom context manager in python :: Using the `contextlib` decorator:
+```python
+from contextlib import contextmanager
+
+@contextmanager
+def managed_resource():
+    print("Allocating resource")
+    try:
+        yield "Active Resource"
+    finally:
+        print("Releasing resource cleanly")
+
+with managed_resource() as res:
+    print(f"Processing with {res}")
