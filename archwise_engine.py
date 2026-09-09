@@ -21,23 +21,6 @@ STOPWORDS = {
     "of", "and", "or", "that", "this", "do", "does", "did", "i"
 }
 
-GRAMMAR_PATTERNS = [
-    (r"\b(he|she|it)\s+go\b", r"\1 goes"),
-    (r"\b(he|she|it)\s+dont\b", r"\1 doesn't"),
-    (r"\b(he|she|it)\s+does\s+not\s+has\b", r"\1 does not have"),
-    (r"\b(they|we|you)\s+is\b", r"\1 are"),
-    (r"\b(they|we|you)\s+was\b", r"\1 were"),
-    (r"\b(i)\s+is\b", r"I am"),
-    (r"\b(i)\s+are\b", r"I am"),
-    (r"\btheir\s+(going|coming|here|running)\b", r"they're \1"),
-    (r"\byour\s+(welcome|right|wrong)\b", r"you're \1"),
-    (r"\bcould\s+of\b", r"could have"),
-    (r"\bshould\s+of\b", r"should have"),
-    (r"\bwould\s+of\b", r"would have"),
-    (r"\ba\s+([aeiou]\w+)", r"an \1"),
-    (r"\ban\s+([^aeiou\s]\w+)", r"a \1"),
-]
-
 SAFE_OPERATORS = {
     ast.Add: operator.add,
     ast.Sub: operator.sub,
@@ -122,8 +105,30 @@ class ArchWiseEngine:
         elif persona == "formal":
             return f"Regarding your inquiry:\n\n{response}"
         elif persona == "energetic":
-            return f"{response} Let's solve more!"
+            return f"{response} Let's expand on that!"
         return response
+
+    def _generate_creative_thinking(self, prompt):
+        m = re.match(r"^(?:think deep(?:ly)? about|brainstorm|creative ideas? for|explore concepts? in):\s*(.*)", prompt, re.IGNORECASE)
+        if not m:
+            return None
+        topic = m.group(1).strip()
+        if not topic:
+            topic = "Systemic Innovation"
+
+        title = topic.title()
+        return (
+            f"### Deep Thinking Framework: {title}\n\n"
+            f"**1. First-Principles Deconstruction**\n"
+            f"Strip away standard analogies regarding *{topic}*. At its absolute core, what fundamental constraints govern it? "
+            f"Every system is composed of inputs, transforming mechanisms, and outputs. Where does the primary bottleneck exist?\n\n"
+            f"**2. Lateral Perspective Inversion**\n"
+            f"- *Inversion Technique*: Instead of optimizing for success in {topic}, consider how one would deliberately guarantee failure. Inverting the problem reveals hidden risks and fragile dependencies.\n"
+            f"- *Second-Order Effects*: What does the immediate consequence of changing {topic} look like, and what unexpected friction does that consequence trigger down the line?\n\n"
+            f"**3. Creative Synthesis & Non-Obvious Solutions**\n"
+            f"Cross-pollinate {topic} with principles from biology (resilience through modular redundancy) or computer science (caching and lazy evaluation). "
+            f"The most durable ideas emerge when disparate conceptual domains collide."
+        )
 
     def _lookup_math_kb(self, prompt):
         clean = prompt.lower().strip()
@@ -139,12 +144,10 @@ class ArchWiseEngine:
         norm = norm.replace("divided by", "/").replace("plus", "+").replace("minus", "-")
         norm = norm.replace("^", "**")
 
-        # Convert word numbers to digits
         tokens = norm.split()
         converted = [str(WORD_NUMBERS[t]) if t in WORD_NUMBERS else t for t in tokens]
         expr_candidate = "".join(converted)
 
-        # Allow basic functions like sqrt
         if not re.search(r"[\d\+\-\*\/\^\%]", expr_candidate):
             return None
 
@@ -264,20 +267,6 @@ class ArchWiseEngine:
 
         self.doc_embeddings = [[round(val, 4) for val in self._sentence_embedding(pat)] for pat in self.raw_patterns]
 
-    def _correct_grammar(self, text):
-        trigger = re.match(r"^(?:fix|correct|proofread|grammar check):\s*(.*)", text, re.IGNORECASE)
-        if not trigger:
-            return None
-        target = trigger.group(1).strip()
-        corrected = target
-        for pattern, replacement in GRAMMAR_PATTERNS:
-            corrected = re.sub(pattern, replacement, corrected, flags=re.IGNORECASE)
-        if corrected:
-            corrected = corrected[0].upper() + corrected[1:]
-            if not corrected.endswith((".", "!", "?")):
-                corrected += "."
-        return f"**Original**: *\"{target}\"*\n\n**Corrected**: *\"{corrected}\"*"
-
     def save(self, filepath="model.json"):
         data = {
             "dim": self.dim,
@@ -316,10 +305,10 @@ class ArchWiseEngine:
     def generate(self, prompt):
         user_persona = self._detect_persona(prompt)
 
-        # 1. Grammar check
-        grammar_eval = self._correct_grammar(prompt)
-        if grammar_eval:
-            return self._adapt_tone(grammar_eval, user_persona)
+        # 1. Creative & Deep Thinking Module
+        deep_think = self._generate_creative_thinking(prompt)
+        if deep_think:
+            return self._adapt_tone(deep_think, user_persona)
 
         # 2. Math Formula / Principle Knowledge Base Lookup
         math_fact = self._lookup_math_kb(prompt)
@@ -355,4 +344,4 @@ if __name__ == "__main__":
     engine = ArchWiseEngine(dim=32)
     engine.train("corpus.txt", "lexicon.json", "synsets.json", "math_knowledge.json")
     engine.save("model.json")
-    print("ArchWise math-enabled AST engine compiled successfully.")
+    print("ArchWise deep-thinking and cognitive model compiled successfully.")
