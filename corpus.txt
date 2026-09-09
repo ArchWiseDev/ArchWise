@@ -12642,3 +12642,7 @@ how does tls handshake work :: TLS 1.3 Handshake Process:
 3. **Key Derivation**: Both peers derive symmetrical ephemeral session keys via Diffie-Hellman exchange.
 4. **Encrypted Transport**: Symmetric application data exchange begins with zero round-trip overhead on repeated sessions (0-RTT).
 what is salted hash in password storage :: Password salting appends a unique cryptographically random string (salt) to every password before running it through a slow, memory-hard key derivation function (such as Argon2id or bcrypt), neutralizing precomputed rainbow table and mass collision attacks.
+how does fork and exec work in linux :: Process creation in POSIX systems occurs in two distinct steps:
+1. **`fork()`**: Duplicates the calling parent process, creating an exact child clone with Copy-on-Write (CoW) memory pages.
+2. **`execve()`**: Replaces the child process memory space, stack, heap, and code segments with a brand-new binary image while preserving inherited open file descriptors.
+what is a zombie process in linux :: A **zombie process** is an execution state where a child process has completed execution (via `exit()`), but its entry remains in the process table because the parent process has not yet read its exit status code using the `wait()` system call.
