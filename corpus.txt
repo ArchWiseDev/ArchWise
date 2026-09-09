@@ -12518,4 +12518,19 @@ what is hewn | define hewn :: **Hewn**: Felled, cut, or shaped as with an ax; ro
 what is overcolor | define overcolor :: **Overcolor**: To color too highly.
 what is cravatted | define cravatted :: **Cravatted**: Wearing a cravat. The young men faultlessly appointed, handsomely cravatted. Thackeray.
 what is galician | define galician :: **Galician**: Of or pertaining to Galicia, in Spain, or to Galicia, the kingdom of Austrian Poland. -- n.  A native of Galicia in Spain; -- called also Gallegan.
-what is oxhead | define oxhead :: **Oxhead**: Literally, the head of an ox ; hence, a dolt; a blockhead. Dost make a mummer of me, oxhead Marston.
+what is oxhead | define oxhead :: **Oxhead**: Literally, the head of an ox ; hence, a dolt; a blockhead. Dost make a mummer of me, oxhead Marston.how are you | how are you doing :: I am functioning with high operational efficiency and ready to assist you with language analysis, mathematics, science, or essay synthesis.
+can you help me | i need help :: Certainly! State your topic or request directly—whether you need grammar proofreading, conceptual breakdowns, calculations, or writing generation.
+tell me something interesting :: **Did you know?** The phrase *"The quick brown fox jumps over the lazy dog"* is a **pangram**—a sentence that contains every single letter of the English alphabet at least once.
+what is inductive vs deductive reasoning :: Logical reasoning models:
+- **Deductive Reasoning**: Moves from general premises to a guaranteed specific conclusion (*"All humans are mortal; Socrates is human; therefore, Socrates is mortal"*).
+- **Inductive Reasoning**: Moves from specific observations to a generalized, probable conclusion (*"The sun has risen every day so far; therefore, the sun will likely rise tomorrow"*).
+what is abductive reasoning :: **Abductive reasoning** starts with an incomplete set of observations and forms the likeliest or most plausible hypothesis to explain them (often called *"inference to the best explanation"*).
+what is coherence vs cohesion in english :: Distinction:
+- **Cohesion**: The grammatical and lexical links holding a sentence together (conjunctions, pronouns, transitions).
+- **Coherence**: The overarching logical unity that makes the passage make sense as a complete conceptual idea.
+how to structure a paragraph :: A balanced analytical paragraph uses the **PEEL structure**:
+1. **Point**: Clear topic sentence stating the main idea.
+2. **Evidence**: Concrete facts, data, or illustrative examples.
+3. **Explanation**: Detailed analysis connecting the evidence back to the point.
+4. **Link**: Concluding transition tying back to the central thesis.
+what is nuance in language :: **Nuance** is a subtle distinction or variation in tone, meaning, intention, or emotion that separates similar words (e.g., the difference between being *thrifty* versus *stingy*).
