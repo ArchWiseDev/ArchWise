@@ -70,19 +70,17 @@ class ArchWiseEngine:
         self.doc_embeddings = []
         self.responses = []
         self.raw_patterns = []
-        self.known_words = set()
+        self.lexicon = {}
         self.last_query = ""
 
     def _detect_persona(self, text):
         clean = text.lower()
         words = set(re.findall(r"\b\w+\b", clean))
-        exclamations = clean.count("!")
-        
         if words.intersection(CASUAL_MARKERS) or (len(words) <= 3 and not words.intersection(FORMAL_MARKERS)):
             return "casual"
         elif words.intersection(FORMAL_MARKERS) or len(text.split()) > 10:
             return "formal"
-        elif exclamations >= 2 or clean.isupper():
+        elif clean.count("!") >= 2 or clean.isupper():
             return "energetic"
         return "neutral"
 
@@ -93,24 +91,17 @@ class ArchWiseEngine:
         elif persona == "formal":
             return f"Regarding your inquiry:\n\n{response}"
         elif persona == "energetic":
-            return f"{response} Let me know if you want to push this further!"
+            return f"{response} Let me know if you want to explore further!"
         return response
 
-    def _deduce_unknown_word(self, word, raw_sentence):
-        role = "concept"
-        if word.endswith("ly"):
-            role = "manner/adverb (describing how an action is performed)"
-        elif word.endswith(("ing", "ed", "ate", "ize")):
-            role = "action/verb"
-        elif word.endswith(("tion", "ment", "ness", "ity", "er", "or")):
-            role = "entity or state/noun"
-        elif word.endswith(("able", "ible", "ous", "al", "ic")):
-            role = "quality/adjective"
-
-        return (
-            f"I haven't fully indexed the specific word **'{word}'** yet, but structurally within your sentence, "
-            f"it appears to function as a **{role}**. Could you clarify its meaning or provide more surrounding context?"
-        )
+    def _lookup_lexicon(self, prompt):
+        # Match "what is X", "define X", "meaning of X"
+        m = re.search(r"\b(?:what\s+is|what\s+are|define|meaning\s+of)\s+([a-zA-Z]+)\b", prompt.lower())
+        if m:
+            target = m.group(1)
+            if target in self.lexicon:
+                return f"**{target.title()}**: {self.lexicon[target]}"
+        return None
 
     def _sentence_embedding(self, text):
         clean = re.sub(r"[^a-zA-Z0-9\s]", " ", text.lower())
@@ -141,11 +132,17 @@ class ArchWiseEngine:
     def _cosine_similarity(self, vec_a, vec_b):
         return sum(a * b for a, b in zip(vec_a, vec_b))
 
-    def train(self, corpus_path="corpus.txt"):
+    def train(self, corpus_path="corpus.txt", lexicon_path="lexicon.json"):
+        # Load 15,000-word instant lexicon
+        try:
+            with open(lexicon_path, "r", encoding="utf-8") as lf:
+                self.lexicon = json.load(lf)
+        except Exception:
+            self.lexicon = {}
+
         self.raw_patterns = []
         self.responses = []
         self.subword_vectors = {}
-        self.known_words = set()
         all_subwords = Counter()
 
         with open(corpus_path, "r", encoding="utf-8") as f:
@@ -179,13 +176,11 @@ class ArchWiseEngine:
         for pat in self.raw_patterns:
             words = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", pat.lower()).split() if w]
             for w in words:
-                self.known_words.add(w)
                 for sw in extract_subwords(w):
                     all_subwords[sw] += 1
 
         random.seed(42)
-        # Keep top subwords to prevent exponential coordinate bloat
-        for sw, count in all_subwords.most_common(12000):
+        for sw, _ in all_subwords.most_common(10000):
             self.subword_vectors[sw] = [round(random.uniform(-0.5, 0.5), 4) for _ in range(self.dim)]
 
         self.doc_embeddings = [[round(val, 4) for val in self._sentence_embedding(pat)] for pat in self.raw_patterns]
@@ -198,12 +193,10 @@ class ArchWiseEngine:
         corrected = target
         for pattern, replacement in GRAMMAR_PATTERNS:
             corrected = re.sub(pattern, replacement, corrected, flags=re.IGNORECASE)
-
         if corrected:
             corrected = corrected[0].upper() + corrected[1:]
             if not corrected.endswith((".", "!", "?")):
                 corrected += "."
-
         return f"**Original**: *\"{target}\"*\n\n**Corrected**: *\"{corrected}\"*"
 
     def _try_arithmetic(self, text):
@@ -236,19 +229,17 @@ class ArchWiseEngine:
         return None
 
     def save(self, filepath="model.json"):
-        # Compact serialization: no indent spaces, floats rounded to 4 decimals
         data = {
             "dim": self.dim,
             "subword_vectors": self.subword_vectors,
             "doc_embeddings": self.doc_embeddings,
             "responses": self.responses,
-            "raw_patterns": self.raw_patterns,
-            "known_words": list(self.known_words)
+            "raw_patterns": self.raw_patterns
         }
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, separators=(",", ":"))
 
-    def load(self, filepath="model.json"):
+    def load(self, filepath="model.json", lexicon_path="lexicon.json"):
         with open(filepath, "r", encoding="utf-8") as f:
             data = json.load(f)
         self.dim = data["dim"]
@@ -256,19 +247,31 @@ class ArchWiseEngine:
         self.doc_embeddings = data["doc_embeddings"]
         self.responses = data["responses"]
         self.raw_patterns = data["raw_patterns"]
-        self.known_words = set(data.get("known_words", []))
+        try:
+            with open(lexicon_path, "r", encoding="utf-8") as lf:
+                self.lexicon = json.load(lf)
+        except Exception:
+            self.lexicon = {}
 
     def generate(self, prompt):
         user_persona = self._detect_persona(prompt)
 
+        # 1. Grammar check
         grammar_eval = self._correct_grammar(prompt)
         if grammar_eval:
             return self._adapt_tone(grammar_eval, user_persona)
 
+        # 2. Arithmetic check
         arithmetic = self._try_arithmetic(prompt)
         if arithmetic:
             return self._adapt_tone(arithmetic, user_persona)
 
+        # 3. Fast Lexicon Lookup (15,000 words)
+        lex_match = self._lookup_lexicon(prompt)
+        if lex_match:
+            return self._adapt_tone(lex_match, user_persona)
+
+        # 4. Dense Semantic Embedding Match
         query_vec = self._sentence_embedding(prompt)
         best_score = -1.0
         best_idx = -1
@@ -278,18 +281,13 @@ class ArchWiseEngine:
                 best_score = sim
                 best_idx = i
 
-        if best_score < 0.42:
-            raw_tokens = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", prompt.lower()).split() if w and w not in STOPWORDS]
-            unknowns = [w for w in raw_tokens if w not in self.known_words]
-            if unknowns:
-                deduction = self._deduce_unknown_word(unknowns[0], prompt)
-                return self._adapt_tone(deduction, user_persona)
-            return self._adapt_tone("I analyzed your statement, but I don't have enough semantic data on that topic yet. Could you rephrase or elaborate?", user_persona)
+        if best_score >= 0.45:
+            return self._adapt_tone(self.responses[best_idx], user_persona)
 
-        return self._adapt_tone(self.responses[best_idx], user_persona)
+        return self._adapt_tone("I analyzed your input, but I don't have enough verified information on that specific topic yet. Could you rephrase or ask another question?", user_persona)
 
 if __name__ == "__main__":
     engine = ArchWiseEngine(dim=32)
-    engine.train("corpus.txt")
+    engine.train("corpus.txt", "lexicon.json")
     engine.save("model.json")
-    print("ArchWise compact vector model compiled successfully.")
+    print(f"ArchWise Two-Tier Engine compiled with {len(engine.lexicon)} lexicon words and {len(engine.raw_patterns)} discourse patterns.")
