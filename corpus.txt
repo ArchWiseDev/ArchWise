@@ -334,3 +334,27 @@ how to deduce unknown words | unknown word context :: To infer the meaning of an
 what is syntactic role :: A word's **syntactic role** defines its grammatical function within a sentence structure (e.g., subject, direct object, predicate, or adjunct).
 what is pragmatic tone :: **Pragmatic tone** is the deliberate adaptation of linguistic register—ranging from formal academic discourse to informal colloquial exchanges—to align with conversational context.
 what are auxiliary verbs :: **Auxiliary verbs** (e.g., *is, have, do, will, can*) combine with primary verbs to convey tense, mood, aspect, or voice.
+what is the subjunctive mood | subjunctive in english :: The **subjunctive mood** expresses wishes, hypothetical situations, demands, or conditions contrary to fact (e.g., *"I demand that he **be** present"*, *"If I **were** you, I would refactor the code"*).
+what are conditional sentences | english conditionals :: English uses four primary **conditional structures**:
+- **Zero Conditional**: General truths and scientific facts (*"If you heat ice, it melts"*).
+- **First Conditional**: Real, probable future situations (*"If the build succeeds, we will deploy"*).
+- **Second Conditional**: Hypothetical or unlikely present/future events (*"If I had more compute, I would train longer"*).
+- **Third Conditional**: Impossible past events contrary to fact (*"If we had optimized earlier, the crash wouldn't have occurred"*).
+what is grammatical inversion :: **Inversion** reverses the normal subject-verb order (*Subject + Verb* $\to$ *Verb + Subject*), often used after negative or restrictive adverbials for dramatic emphasis (e.g., *"Seldom **have I seen** such clean architecture"*).
+what is a cleft sentence :: A **cleft sentence** splits a single clause into two sections to place special emphasis on a specific element (e.g., standard: *"The developer fixed the bug"* $\to$ cleft: *"**It was the developer who** fixed the bug"*).
+what is an elliptical clause :: An **elliptical clause** is a grammatically complete clause from which words have been deliberately omitted because they are easily understood from context (e.g., *"She writes faster than I [do]"*).
+what is a phrasal verb :: A **phrasal verb** consists of a verb paired with a preposition or adverb that alters its fundamental meaning (e.g., *give up*, *run into*, *break down*):
+- **Separable**: Objects can sit between the verb and particle (*"Turn **it** off"*).
+- **Inseparable**: The verb and particle must remain adjacent (*"Look **after** the system"*).
+what is a collocation :: A **collocation** is a natural, customary pairing or grouping of words that native speakers instinctively use together (e.g., *"make an effort"* rather than *"do an effort"*; *"heavy rain"* rather than *"strong rain"*).
+em dash vs en dash vs hyphen | dash rules :: Typographic distinction:
+- **Hyphen (`-`)**: Joins compound words (*state-of-the-art*, *well-known*).
+- **En-dash (`–`)**: Indicates numerical spans or ranges (*pages 10–20*, *years 2024–2026*).
+- **Em-dash (`—`)**: Creates an emphatic pause, abrupt thought break, or parenthetical aside (*"The code ran—against all odds—flawlessly"*).
+what is an ellipsis :: An **ellipsis (`...`)** indicates the intentional omission of words from a quoted passage or represents a trailing pause in thought.
+what is tone vs register in writing :: Distinction:
+- **Tone**: The underlying emotional attitude conveyed by the speaker or text (*analytical, passionate, skeptical*).
+- **Register**: The level of formality chosen for a specific social or technical context (*colloquial, professional, academic*).
+what is an appositive :: An **appositive** is a noun or noun phrase placed immediately adjacent to another noun to rename, clarify, or explain it (e.g., *"ArchWise, **an independent AI system**, runs locally"*).
+what is nominalization :: **Nominalization** is the process of converting verbs or adjectives into abstract nouns (e.g., *investigate* $\to$ *investigation*, *scalable* $\to$ *scalability*), common in formal and academic writing.
+what is litotes :: **Litotes** is a figure of speech employing an understatement through the denial of its contrary (e.g., saying *"not bad"* to mean *"good"*, or *"no small task"* to mean *"difficult"*).
