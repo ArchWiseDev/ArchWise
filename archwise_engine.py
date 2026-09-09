@@ -73,9 +73,9 @@ class ArchWiseEngine:
         self.doc_freqs = []
         self.last_query = ""
         self.assistant_fallbacks = [
-            "I haven't indexed that specific concept yet. Feel free to ask about grammar rules, science, arithmetic, or writing tools!",
-            "I don't have enough verified information on that topic yet. Could you try rephrasing or asking another question?",
-            "That concept falls outside my current baseline training."
+            "I couldn't identify recognizable patterns in that input. Could you rephrase your question?",
+            "That query falls outside my indexed language parameters.",
+            "I didn't quite catch that. Feel free to ask about grammar, definitions, or arithmetic."
         ]
 
     def _tokenize(self, text):
@@ -255,7 +255,6 @@ class ArchWiseEngine:
                 df[w] += 1
                 self.vocab.add(w)
 
-        # Probabilistic BM25 IDF
         self.idf = {w: math.log((total_docs - df[w] + 0.5) / (df[w] + 0.5) + 1.0) for w in self.vocab}
 
     def _bm25_score(self, query_tokens, doc_idx):
@@ -300,43 +299,42 @@ class ArchWiseEngine:
         self.doc_freqs = [Counter(doc) for doc in self.documents]
 
     def generate(self, prompt):
-        # 1. Essay Generation
-        essay_eval = self._generate_essay(prompt)
-        if essay_eval:
-            return essay_eval
+        # 1. Dynamic Modules
+        essay = self._generate_essay(prompt)
+        if essay:
+            return essay
 
-        # 2. Rephrase Engine
-        rephrase_eval = self._rephrase(prompt)
-        if rephrase_eval:
-            return rephrase_eval
+        rephrase = self._rephrase(prompt)
+        if rephrase:
+            return rephrase
 
-        # 3. Summarization Check
         summary = self._summarize(prompt)
         if summary:
             return summary
 
-        # 4. Grammar Check
-        grammar_eval = self._correct_grammar(prompt)
-        if grammar_eval:
-            return grammar_eval
+        grammar = self._correct_grammar(prompt)
+        if grammar:
+            return grammar
 
-        # 5. Arithmetic Check
-        calc_result = self._try_arithmetic(prompt)
-        if calc_result:
-            return calc_result
+        arithmetic = self._try_arithmetic(prompt)
+        if arithmetic:
+            return arithmetic
 
-        # 6. Conversational Follow-up
-        clean_input = prompt.strip().lower()
-        if clean_input in FOLLOW_UP_TRIGGERS and self.last_query:
-            tokens = self._tokenize(f"{self.last_query}")
-        else:
-            tokens = self._tokenize(prompt)
-            if tokens:
-                self.last_query = prompt
-
-        if not tokens:
+        # 2. Tokenization & Noise Detection
+        raw_words = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", prompt.lower()).split() if w]
+        tokens = self._tokenize(prompt)
+        
+        if not tokens or not raw_words:
             return "How can I assist you today?"
 
+        # 3. Contextual Follow-up
+        clean_input = prompt.strip().lower()
+        if clean_input in FOLLOW_UP_TRIGGERS and self.last_query:
+            tokens = self._tokenize(self.last_query)
+        else:
+            self.last_query = prompt
+
+        # 4. Probabilistic BM25 Search
         best_score = 0.0
         best_idx = -1
         for i in range(len(self.documents)):
@@ -345,9 +343,16 @@ class ArchWiseEngine:
                 best_score = score
                 best_idx = i
 
-        # Strict Relevance Floor: Must have meaningful BM25 score and at least one shared token
-        matched_tokens = set(tokens).intersection(set(self.documents[best_idx])) if best_idx != -1 else set()
-        if best_score < 1.2 or not matched_tokens:
+        if best_idx == -1:
+            return random.choice(self.assistant_fallbacks)
+
+        # 5. Semantic Density & Coherence Gate:
+        # Require that matched tokens account for at least 35% of the user's input words
+        matched_tokens = set(tokens).intersection(set(self.documents[best_idx]))
+        coherence_ratio = len(matched_tokens) / len(raw_words)
+
+        # If it's a 1-word match inside a long gibberish sentence, reject it
+        if best_score < 1.4 or len(matched_tokens) == 0 or (len(raw_words) > 3 and coherence_ratio < 0.35):
             return random.choice(self.assistant_fallbacks)
 
         return self.responses[best_idx]
@@ -356,4 +361,4 @@ if __name__ == "__main__":
     engine = ArchWiseEngine()
     engine.train("corpus.txt")
     engine.save("model.json")
-    print("ArchWise Precision Engine trained with BM25 (Levenshtein warping removed).")
+    print("ArchWise density-gated BM25 compiled successfully.")
