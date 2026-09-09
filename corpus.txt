@@ -12651,3 +12651,5 @@ what is circuit breaker pattern in microservices :: A fault-tolerance design pat
 - **Closed**: Requests pass through normally.
 - **Open**: Immediate fallback execution without network calls when failure rate exceeds threshold.
 - **Half-Open**: Allows limited probe requests to test backend recovery before fully resetting.
+what is static single assignment | ssa form :: **Static Single Assignment (SSA)** is an intermediate representation (IR) property where every variable is assigned a value exactly once and defined before use. Phis ($\phi$) merge diverging values at control flow branch joins, simplifying compiler optimizations like dead code elimination and constant propagation.
+how does recursive descent parsing work :: A top-down parsing technique where each non-terminal grammar production rule maps directly to a distinct recursive function that consumes input tokens matching the rule's expected syntax.
