@@ -12630,3 +12630,9 @@ what is dynamic programming | define dynamic programming :: **Dynamic Programmin
 - **Memoization (Top-Down)**: Caching recursive results.
 - **Tabulation (Bottom-Up)**: Iteratively filling a lookup table to avoid recursion overhead.
 how does quicksort partition work :: The partition step selects a pivot element, rearranges elements so values smaller than the pivot move to the left and larger to the right, and returns the pivot index to recursively sort both partitions in **O(n log n)** average time.
+how to optimize slow sql query :: Key database query optimization steps:
+1. Run `EXPLAIN ANALYZE` to check for full sequential table scans vs index scans.
+2. Add composite indexes matching multi-column filter predicates (`WHERE` + `ORDER BY`).
+3. Eliminate `SELECT *` to reduce I/O transfer and enable index-only scans.
+4. Replace correlated subqueries with `JOIN` or Common Table Expressions (CTEs).
+what is database sharding :: **Sharding** partitions a single dataset horizontally across multiple distinct database servers. Each shard contains identical table schemas but unique subsets of rows, routed by a partition key (such as hash or range).
