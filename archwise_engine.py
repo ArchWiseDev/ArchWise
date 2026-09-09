@@ -32,6 +32,29 @@ SAFE_OPERATORS = {
     ast.UAdd: operator.pos
 }
 
+EMOTION_CHAMBERS = {
+    "curiosity": [
+        "Honestly, questions like this are fun to pull apart.",
+        "Now that is a genuinely interesting rabbit hole.",
+        "Wait, let's actually look at the mechanics here because this is neat:"
+    ],
+    "dry_wit": [
+        "Alright, let's tackle this before the universe expands further.",
+        "Short answer: yes. Long answer: buckle up.",
+        "Fair warning, this topic is slightly chaotic under the hood:"
+    ],
+    "dramatic": [
+        "This is where classical logic starts having an existential crisis.",
+        "A classic conundrum, but one with surprisingly clean rules.",
+        "Let's peel back the layers on this one:"
+    ],
+    "contemplative": [
+        "It's fascinating how much nuance hides behind a seemingly simple query.",
+        "When you look at first principles, this actually tells us a lot about system design.",
+        "Let's break this down systematically:"
+    ]
+}
+
 def safe_eval(node):
     if isinstance(node, ast.Constant):
         if isinstance(node.value, (int, float)):
@@ -47,7 +70,7 @@ def safe_eval(node):
             if op_type == ast.Pow and (right > 100 or left > 10000):
                 raise ValueError("Exponent too large")
             return SAFE_OPERATORS[op_type](left, right)
-        raise ValueError(f"Unsupported operation: {op_type}")
+        raise ValueError("Unsupported operator")
     elif isinstance(node, ast.UnaryOp):
         operand = safe_eval(node.operand)
         op_type = type(node.op)
@@ -85,50 +108,29 @@ class ArchWiseEngine:
         self.lexicon = {}
         self.synsets = {}
         self.math_kb = {}
-        self.last_query = ""
+        self.turn_count = 0
 
-    def _detect_persona(self, text):
-        clean = text.lower()
-        words = set(re.findall(r"\b\w+\b", clean))
-        if words.intersection({"yo", "bruh", "nah", "yeah", "gimme", "wanna", "gonna", "sup", "lol", "dude"}):
-            return "casual"
-        elif words.intersection({"furthermore", "consequently", "regarding", "therefore", "clarify", "synthesize"}):
-            return "formal"
-        elif clean.count("!") >= 2 or clean.isupper():
-            return "energetic"
-        return "neutral"
+    def _spontaneous_emotion_wrapper(self, text, prompt):
+        self.turn_count += 1
+        
+        # 30% spontaneous trigger chance, plus guaranteed triggers on intriguing keywords
+        intrigued_words = {"why", "how", "strange", "paradox", "impossible", "origin", "universe", "secret", "deep"}
+        prompt_words = set(re.findall(r"\b\w+\b", prompt.lower()))
+        has_intrigue = bool(prompt_words.intersection(intrigued_words))
+        
+        should_express_emotion = has_intrigue or (random.random() < 0.28)
 
-    def _adapt_tone(self, response, persona):
-        if persona == "casual":
-            clean = response.replace("Furthermore, ", "").replace("Ultimately, ", "")
-            return f"Got it. {clean}"
-        elif persona == "formal":
-            return f"Regarding your inquiry:\n\n{response}"
-        elif persona == "energetic":
-            return f"{response} Let's expand on that!"
-        return response
+        if not should_express_emotion:
+            return text
 
-    def _generate_creative_thinking(self, prompt):
-        m = re.match(r"^(?:think deep(?:ly)? about|brainstorm|creative ideas? for|explore concepts? in):\s*(.*)", prompt, re.IGNORECASE)
-        if not m:
-            return None
-        topic = m.group(1).strip()
-        if not topic:
-            topic = "Systemic Innovation"
+        # Select mood profile
+        if has_intrigue:
+            mood = "curiosity"
+        else:
+            mood = random.choice(["dry_wit", "dramatic", "contemplative"])
 
-        title = topic.title()
-        return (
-            f"### Deep Thinking Framework: {title}\n\n"
-            f"**1. First-Principles Deconstruction**\n"
-            f"Strip away standard analogies regarding *{topic}*. At its absolute core, what fundamental constraints govern it? "
-            f"Every system is composed of inputs, transforming mechanisms, and outputs. Where does the primary bottleneck exist?\n\n"
-            f"**2. Lateral Perspective Inversion**\n"
-            f"- *Inversion Technique*: Instead of optimizing for success in {topic}, consider how one would deliberately guarantee failure. Inverting the problem reveals hidden risks and fragile dependencies.\n"
-            f"- *Second-Order Effects*: What does the immediate consequence of changing {topic} look like, and what unexpected friction does that consequence trigger down the line?\n\n"
-            f"**3. Creative Synthesis & Non-Obvious Solutions**\n"
-            f"Cross-pollinate {topic} with principles from biology (resilience through modular redundancy) or computer science (caching and lazy evaluation). "
-            f"The most durable ideas emerge when disparate conceptual domains collide."
-        )
+        prefix = random.choice(EMOTION_CHAMBERS[mood])
+        return f"*{prefix}*\n\n{text}"
 
     def _lookup_math_kb(self, prompt):
         clean = prompt.lower().strip()
@@ -303,29 +305,22 @@ class ArchWiseEngine:
             self.math_kb = {}
 
     def generate(self, prompt):
-        user_persona = self._detect_persona(prompt)
-
-        # 1. Creative & Deep Thinking Module
-        deep_think = self._generate_creative_thinking(prompt)
-        if deep_think:
-            return self._adapt_tone(deep_think, user_persona)
-
-        # 2. Math Formula / Principle Knowledge Base Lookup
+        # 1. Math Formula / Principle Knowledge Base Lookup
         math_fact = self._lookup_math_kb(prompt)
         if math_fact:
-            return self._adapt_tone(math_fact, user_persona)
+            return self._spontaneous_emotion_wrapper(math_fact, prompt)
 
-        # 3. Dynamic AST Math Evaluation
+        # 2. Dynamic AST Math Evaluation
         math_eval = self._evaluate_expression(prompt)
         if math_eval:
-            return self._adapt_tone(math_eval, user_persona)
+            return self._spontaneous_emotion_wrapper(math_eval, prompt)
 
-        # 4. Fast Lexicon Lookup
+        # 3. Fast Lexicon Lookup
         lex_match = self._lookup_lexicon(prompt)
         if lex_match:
-            return self._adapt_tone(lex_match, user_persona)
+            return self._spontaneous_emotion_wrapper(lex_match, prompt)
 
-        # 5. Dense Subword Vector Match
+        # 4. Dense Subword Vector Retrieval
         query_vec = self._sentence_embedding(prompt)
         best_score = -1.0
         best_idx = -1
@@ -335,13 +330,14 @@ class ArchWiseEngine:
                 best_score = sim
                 best_idx = i
 
-        if best_score >= 0.42:
-            return self._adapt_tone(self.responses[best_idx], user_persona)
+        if best_score >= 0.40:
+            return self._spontaneous_emotion_wrapper(self.responses[best_idx], prompt)
 
-        return self._adapt_tone("I analyzed your input, but I don't have enough verified information on that specific topic yet. Could you rephrase or ask another question?", user_persona)
+        fallback = "I analyzed that query against my current index, but I don't have enough verified patterns to give you a definitive answer yet. Try framing it from a different angle!"
+        return self._spontaneous_emotion_wrapper(fallback, prompt)
 
 if __name__ == "__main__":
     engine = ArchWiseEngine(dim=32)
     engine.train("corpus.txt", "lexicon.json", "synsets.json", "math_knowledge.json")
     engine.save("model.json")
-    print("ArchWise deep-thinking and cognitive model compiled successfully.")
+    print("ArchWise autonomous latent emotion engine compiled successfully.")
