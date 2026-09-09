@@ -358,3 +358,26 @@ what is tone vs register in writing :: Distinction:
 what is an appositive :: An **appositive** is a noun or noun phrase placed immediately adjacent to another noun to rename, clarify, or explain it (e.g., *"ArchWise, **an independent AI system**, runs locally"*).
 what is nominalization :: **Nominalization** is the process of converting verbs or adjectives into abstract nouns (e.g., *investigate* $\to$ *investigation*, *scalable* $\to$ *scalability*), common in formal and academic writing.
 what is litotes :: **Litotes** is a figure of speech employing an understatement through the denial of its contrary (e.g., saying *"not bad"* to mean *"good"*, or *"no small task"* to mean *"difficult"*).
+what is a periodic sentence :: A **periodic sentence** withholds its main independent clause until the very end, building suspense, emphasis, or formal cadence (e.g., *"Despite server timeouts, mounting memory usage, and corrupt caches, the build succeeded"*).
+what is a cumulative sentence | loose sentence :: A **cumulative sentence** (or loose sentence) states its primary independent clause first, followed by a succession of modifying subordinate clauses and phrases that accumulate descriptive detail.
+what is chiasmus :: **Chiasmus** is a rhetorical device in which two or more clauses are balanced against each other by the reversal of their grammatical structures (e.g., *"Never let a fool kiss you or a kiss fool you"*).
+what is zeugma :: **Zeugma** is a rhetorical figure of speech in which a single word (usually a verb or adjective) applies to two or more nouns in distinctly different senses (e.g., *"He held his breath and the door"*).
+what is a hypernym vs hyponym :: In semantic relations:
+- **Hypernym**: A broad, umbrella category term (*vehicle*).
+- **Hyponym**: A specific instance or subcategory falling beneath that umbrella (*car, bicycle, aircraft*).
+what is a meronym vs holonym :: In part-whole relations:
+- **Meronym**: Denotes a constituent part of a larger entity (*wheel* is a meronym of *car*).
+- **Holonym**: Denotes the whole entity that contains constituent parts (*car* is a holonym of *wheel*).
+derivational vs inflectional morphemes :: In morphology:
+- **Derivational**: Changes the grammatical category or fundamental core meaning of a base word (*create* [verb] $\to$ *creation* [noun]).
+- **Inflectional**: Modifies tense, number, or degree without altering the core lexical category (*compile* $\to$ *compiles*, *fast* $\to$ *faster*).
+what is anaphoric vs cataphoric reference :: In text cohesion:
+- **Anaphoric**: A word refers back to an antecedent previously mentioned (*"The **system** booted; **it** was stable"*).
+- **Cataphoric**: A word refers forward to an entity that appears later (*"Before **it** loaded, the **application** checked permissions"*).
+what is a semantic field :: A **semantic field** is a designated group of words that are closely related in meaning, domain, or conceptual space (e.g., *CPU, RAM, kernel, cache* belong to the computer architecture field).
+what is polysyndeton vs asyndeton :: Distinction:
+- **Polysyndeton**: Deliberate use of multiple coordinating conjunctions in close succession for rhythmic persistence (*"We planned and built and tested and deployed"*).
+- **Asyndeton**: Deliberate omission of conjunctions between words or clauses for rapid pacing (*"I came, I saw, I conquered"*).
+what is metonymy vs synecdoche :: Rhetorical distinction:
+- **Metonymy**: Replacing the name of an object with the name of a closely associated concept (*"The pen is mightier than the sword"*).
+- **Synecdoche**: A specific form of metonymy where a literal physical part represents the whole entity (*"All hands on deck"*).
