@@ -9,11 +9,11 @@ PORT = 8080
 
 engine = ArchWiseEngine(dim=32)
 if os.path.exists("model.json"):
-    print("Loading existing ArchWise model with full geography...")
-    engine.load("model.json", "lexicon.json", "synsets.json", "math_knowledge.json", "geography.json")
+    print("Loading ArchWise model with all omnibus modules...")
+    engine.load("model.json", "lexicon.json", "synsets.json", "math_knowledge.json", "geography.json", "omnibus.json")
 else:
-    print("No model.json detected. Training from corpus...")
-    engine.train("corpus.txt", "lexicon.json", "synsets.json", "math_knowledge.json", "geography.json")
+    print("No model.json detected. Compiling...")
+    engine.train("corpus.txt", "lexicon.json", "synsets.json", "math_knowledge.json", "geography.json", "omnibus.json")
     engine.save("model.json")
 
 class ArchWiseHandler(http.server.SimpleHTTPRequestHandler):
@@ -26,11 +26,7 @@ class ArchWiseHandler(http.server.SimpleHTTPRequestHandler):
                 data = json.loads(post_body)
                 user_msg = data.get("message", "").strip()
                 
-                if not user_msg:
-                    reply_text = "Please enter a message."
-                else:
-                    reply_text = engine.generate(user_msg)
-
+                reply_text = engine.generate(user_msg) if user_msg else "Please enter a message."
                 payload = json.dumps({"reply": reply_text}).encode("utf-8")
                 
                 self.send_response(200)

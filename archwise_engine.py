@@ -97,6 +97,7 @@ class ArchWiseEngine:
         self.synsets = {}
         self.math_kb = {}
         self.geography = {}
+        self.omnibus = {}
 
     def _spontaneous_emotion_wrapper(self, text, prompt):
         intrigue_words = {"why", "how", "strange", "paradox", "origin", "universe", "secret", "deep", "solve"}
@@ -114,23 +115,28 @@ class ArchWiseEngine:
         norm = re.sub(r"\bwhat['’]?s\b", "what is", norm)
         norm = re.sub(r"\bwho['’]?s\b", "who is", norm)
         norm = re.sub(r"\bwhere['’]?s\b", "where is", norm)
-        norm = re.sub(r"\bhow['’]?s\b", "how is", norm)
         return norm
 
+    def _lookup_omnibus(self, normalized_prompt):
+        m = re.search(r"\b(?:what\s+is|tell\s+me\s+about|about|define)\s+([a-zA-Z0-9\s]+)\b", normalized_prompt)
+        target = m.group(1).strip() if m else normalized_prompt
+        
+        if target in self.omnibus:
+            return self.omnibus[target]
+
+        words = target.split()
+        for w in words:
+            if w in self.omnibus:
+                return self.omnibus[w]
+        return None
+
     def _lookup_geography(self, normalized_prompt):
-        # Match country inquiries or capital checks
         m_capital = re.search(r"\bcapital\s+of\s+([a-zA-Z\s]+)\b", normalized_prompt)
         if m_capital:
             target = m_capital.group(1).strip()
             if target in self.geography:
                 data = self.geography[target]
                 return f"The capital of **{data.get('name', target.title())}** is **{data.get('capital', 'Unknown')}**."
-
-        m_country = re.search(r"\b(?:what\s+is|where\s+is|tell\s+me\s+about|about)\s+([a-zA-Z\s]+)\b", normalized_prompt)
-        if m_country:
-            target = m_country.group(1).strip()
-            if target in self.geography:
-                return self.geography[target].get("summary", "")
 
         for country_key, data in self.geography.items():
             if re.search(r"\b" + re.escape(country_key) + r"\b", normalized_prompt):
@@ -206,30 +212,13 @@ class ArchWiseEngine:
     def _cosine_similarity(self, vec_a, vec_b):
         return sum(a * b for a, b in zip(vec_a, vec_b))
 
-    def train(self, corpus_path="corpus.txt", lexicon_path="lexicon.json", synsets_path="synsets.json", math_path="math_knowledge.json", geo_path="geography.json"):
-        try:
-            with open(lexicon_path, "r", encoding="utf-8") as lf:
-                self.lexicon = json.load(lf)
-        except Exception:
-            self.lexicon = {}
-
-        try:
-            with open(synsets_path, "r", encoding="utf-8") as sf:
-                self.synsets = json.load(sf)
-        except Exception:
-            self.synsets = {}
-
-        try:
-            with open(math_path, "r", encoding="utf-8") as mf:
-                self.math_kb = json.load(mf)
-        except Exception:
-            self.math_kb = {}
-
-        try:
-            with open(geo_path, "r", encoding="utf-8") as gf:
-                self.geography = json.load(gf)
-        except Exception:
-            self.geography = {}
+    def train(self, corpus_path="corpus.txt", lexicon_path="lexicon.json", synsets_path="synsets.json", math_path="math_knowledge.json", geo_path="geography.json", omnibus_path="omnibus.json"):
+        for path, attr in [(lexicon_path, "lexicon"), (synsets_path, "synsets"), (math_path, "math_kb"), (geo_path, "geography"), (omnibus_path, "omnibus")]:
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    setattr(self, attr, json.load(f))
+            except Exception:
+                setattr(self, attr, {})
 
         self.raw_patterns = []
         self.responses = []
@@ -239,11 +228,10 @@ class ArchWiseEngine:
         with open(corpus_path, "r", encoding="utf-8") as f:
             full_text = f.read()
 
-        blocks = full_text.split("\n")
         current_patterns = None
         current_reply = []
 
-        for line in blocks:
+        for line in full_text.split("\n"):
             line_str = line.strip()
             if "::" in line_str:
                 if current_patterns and current_reply:
@@ -254,9 +242,8 @@ class ArchWiseEngine:
                 parts = line_str.split("::", 1)
                 current_patterns = [p.strip() for p in parts[0].split("|") if p.strip()]
                 current_reply = [parts[1].strip()]
-            elif current_patterns:
-                if line_str:
-                    current_reply.append(line_str)
+            elif current_patterns and line_str:
+                current_reply.append(line_str)
 
         if current_patterns and current_reply:
             reply_text = "\n".join(current_reply).strip()
@@ -287,7 +274,7 @@ class ArchWiseEngine:
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, separators=(",", ":"))
 
-    def load(self, filepath="model.json", lexicon_path="lexicon.json", synsets_path="synsets.json", math_path="math_knowledge.json", geo_path="geography.json"):
+    def load(self, filepath="model.json", lexicon_path="lexicon.json", synsets_path="synsets.json", math_path="math_knowledge.json", geo_path="geography.json", omnibus_path="omnibus.json"):
         with open(filepath, "r", encoding="utf-8") as f:
             data = json.load(f)
         self.dim = data["dim"]
@@ -295,46 +282,37 @@ class ArchWiseEngine:
         self.doc_embeddings = data["doc_embeddings"]
         self.responses = data["responses"]
         self.raw_patterns = data["raw_patterns"]
-        try:
-            with open(lexicon_path, "r", encoding="utf-8") as lf:
-                self.lexicon = json.load(lf)
-        except Exception:
-            self.lexicon = {}
-        try:
-            with open(synsets_path, "r", encoding="utf-8") as sf:
-                self.synsets = json.load(sf)
-        except Exception:
-            self.synsets = {}
-        try:
-            with open(math_path, "r", encoding="utf-8") as mf:
-                self.math_kb = json.load(mf)
-        except Exception:
-            self.math_kb = {}
-        try:
-            with open(geo_path, "r", encoding="utf-8") as gf:
-                self.geography = json.load(gf)
-        except Exception:
-            self.geography = {}
+
+        for path, attr in [(lexicon_path, "lexicon"), (synsets_path, "synsets"), (math_path, "math_kb"), (geo_path, "geography"), (omnibus_path, "omnibus")]:
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    setattr(self, attr, json.load(f))
+            except Exception:
+                setattr(self, attr, {})
 
     def generate(self, prompt):
         norm = self._normalize_prompt(prompt)
 
-        # 1. Geography Knowledge Base Lookup (All 195+ Countries & Capitals)
+        # 1. Omnibus Knowledge Check (Periodic Elements, Astronomy, Linux, Currencies)
+        omni_match = self._lookup_omnibus(norm)
+        if omni_match:
+            return self._spontaneous_emotion_wrapper(omni_match, prompt)
+
+        # 2. Geography Knowledge Base Lookup
         geo_match = self._lookup_geography(norm)
         if geo_match:
             return self._spontaneous_emotion_wrapper(geo_match, prompt)
 
-        # 2. Math Formula check
+        # 3. Math Formula & AST Calculation
         math_fact = self._lookup_math_kb(norm)
         if math_fact:
             return self._spontaneous_emotion_wrapper(math_fact, prompt)
 
-        # 3. Safe Math Evaluation
         math_eval = self._evaluate_expression(norm)
         if math_eval:
             return self._spontaneous_emotion_wrapper(math_eval, prompt)
 
-        # 4. English Lexicon lookup
+        # 4. English Lexicon Lookup
         lex_match = self._lookup_lexicon(norm)
         if lex_match:
             return self._spontaneous_emotion_wrapper(lex_match, prompt)
@@ -354,11 +332,11 @@ class ArchWiseEngine:
 
         return (
             f"I analyzed your inquiry about **'{prompt}'**, but I don't have enough verified data indexed on this topic yet. "
-            f"You can ask me about global geography, mathematical proofs, vocabulary definitions, or design principles."
+            f"Try asking about chemical elements, astronomy, Linux commands, world geography, math, or definitions."
         )
 
 if __name__ == "__main__":
     engine = ArchWiseEngine(dim=32)
-    engine.train("corpus.txt", "lexicon.json", "synsets.json", "math_knowledge.json", "geography.json")
+    engine.train("corpus.txt", "lexicon.json", "synsets.json", "math_knowledge.json", "geography.json", "omnibus.json")
     engine.save("model.json")
-    print(f"ArchWise engine recompiled with {len(engine.geography)} nations indexed.")
+    print("ArchWise Omnibus Engine compiled successfully.")
