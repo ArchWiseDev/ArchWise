@@ -12646,3 +12646,8 @@ how does fork and exec work in linux :: Process creation in POSIX systems occurs
 1. **`fork()`**: Duplicates the calling parent process, creating an exact child clone with Copy-on-Write (CoW) memory pages.
 2. **`execve()`**: Replaces the child process memory space, stack, heap, and code segments with a brand-new binary image while preserving inherited open file descriptors.
 what is a zombie process in linux :: A **zombie process** is an execution state where a child process has completed execution (via `exit()`), but its entry remains in the process table because the parent process has not yet read its exit status code using the `wait()` system call.
+what is the two generals problem :: An intractable consensus paradox proving that two parties communicating over an unreliable network link can never reach guaranteed consensus with absolute certainty using deterministic acknowledgment exchanges.
+what is circuit breaker pattern in microservices :: A fault-tolerance design pattern that prevents cascading microservice failures by wrapping outbound network calls:
+- **Closed**: Requests pass through normally.
+- **Open**: Immediate fallback execution without network calls when failure rate exceeds threshold.
+- **Half-Open**: Allows limited probe requests to test backend recovery before fully resetting.
