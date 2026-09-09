@@ -12601,4 +12601,14 @@ what is the highest mountain in the world | mount everest :: **Mount Everest** i
 what is the largest desert in the world :: The largest desert on Earth is the **Antarctic Desert** (a cold desert covering ~14.2 million km²). The largest hot desert is the **Sahara Desert** in northern Africa (~9.2 million km²).
 what is latitude and longitude :: Geographic coordinates:\n- **Latitude**: Measures distance north or south of the Equator (0° to 90° N/S).\n- **Longitude**: Measures distance east or west of the Prime Meridian in Greenwich, England (0° to 180° E/W).
 what is the equator :: The **Equator** is the imaginary line at 0° latitude dividing Earth into the Northern and Southern Hemispheres, receiving the most consistent direct sunlight year-round.
-what is plate tectonics | continental drift :: **Plate tectonics** is the scientific theory that Earth's outer shell (lithosphere) is divided into multiple rigid plates that glide over the fluid asthenosphere, creating earthquakes, oceanic trenches, and mountain ranges at their boundaries.
+what is plate tectonics | continental drift :: **Plate tectonics** is the scientific theory that Earth's outer shell (lithosphere) is divided into multiple rigid plates that glide over the fluid asthenosphere, creating earthquakes, oceanic trenches, and mountain ranges at their boundaries.how to fetch data in javascript | js fetch api :: ```javascript
+async function loadData(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error("Fetch failure:", err);
+  }
+}
