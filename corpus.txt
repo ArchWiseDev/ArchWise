@@ -381,3 +381,20 @@ what is polysyndeton vs asyndeton :: Distinction:
 what is metonymy vs synecdoche :: Rhetorical distinction:
 - **Metonymy**: Replacing the name of an object with the name of a closely associated concept (*"The pen is mightier than the sword"*).
 - **Synecdoche**: A specific form of metonymy where a literal physical part represents the whole entity (*"All hands on deck"*).
+what is a garden path sentence :: A **garden path sentence** is grammatically correct but constructed such that a reader's initial interpretation is likely incorrect, requiring re-reading to parse the true syntactic structure (e.g., *"The old man the boat"* where *man* is a verb).
+what is structural ambiguity :: **Structural ambiguity** (or syntactic ambiguity) occurs when a phrase or sentence can be parsed with multiple distinct syntactic trees and valid meanings (e.g., *"I saw the man with the telescope"*).
+what are gricean maxims | conversational maxims :: Formulated by philosopher Paul Grice, the four **conversational maxims** describe cooperative discourse:
+1. **Maxim of Quantity**: Provide as much information as needed, but no more.
+2. **Maxim of Quality**: Strive to state only what is true and supported by evidence.
+3. **Maxim of Relation**: Ensure contributions are strictly relevant to the exchange.
+4. **Maxim of Manner**: Be clear, brief, orderly, and avoid obscurity or ambiguity.
+what is pragmatic implicature :: **Pragmatic implicature** refers to what is suggested or implied in an utterance rather than strictly expressed in its literal semantic surface form.
+what is polysemy :: **Polysemy** is the capacity for a single word or phrase to possess multiple related semantic meanings (e.g., *bank* as a financial institution vs. a river verge; or *run* as physical movement vs. executing code).
+what is the present perfect progressive :: The **present perfect progressive** tense (*has/have been + verb-ing*) describes continuous actions that began in the past and are still ongoing in the present (e.g., *"ArchWise has been learning English mechanics"*).
+what is the past perfect tense :: The **past perfect** tense (*had + past participle*) establishes that an action was completed before another specified event in the past (e.g., *"The server had initialized before the client sent requests"*).
+what is the future perfect tense :: The **future perfect** tense (*will have + past participle*) projects that an event will be completed prior to a designated point in the future (e.g., *"By dawn, the system will have finished training"*).
+what does bite the bullet mean :: **"Bite the bullet"** is an idiom meaning to face an inevitable, difficult, or unpleasant situation with courage and stoic endurance.
+what does break a leg mean :: **"Break a leg"** is an idiomatic theatrical expression used to wish someone good luck without invoking superstition.
+what does hit the nail on the head mean :: **"Hit the nail on the head"** is an idiom meaning to describe exactly what is causing a situation or to make a precisely accurate statement.
+what is an tautology in language :: A **tautology** is an unnecessary repetition of meaning using distinct words, creating rhetorical redundancy (e.g., *"free gift"*, *"unconfirmed rumor"*, *"PIN number"*).
+what is an malapropism :: A **malapropism** is the mistaken use of an incorrect word in place of a similar-sounding one, often with unintentional humorous effects (e.g., saying *"supposition"* when meaning *"proposition"*).
