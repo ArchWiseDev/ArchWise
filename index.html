@@ -441,6 +441,7 @@
   <div id="input-container">
     <div class="input-capsule">
       <textarea id="prompt-textarea" rows="1" placeholder="Ask ArchWise..." autofocus></textarea>
+      <button class="icon-btn" id="mic-action-btn" title="Voice Input" style="width:36px; height:36px; margin-bottom:2px; color:var(--text-secondary);"><i class="fa-solid fa-microphone" id="mic-icon"></i></button>
       <button class="capsule-send-btn" id="send-action-btn" disabled><i class="fa-solid fa-arrow-up"></i></button>
     </div>
   </div>
@@ -741,6 +742,51 @@
   });
 
   sendBtn.onclick = handleSend;
+
+  // Web Speech API Integration for Voice Input
+  const micBtn = document.getElementById("mic-action-btn");
+  const micIcon = document.getElementById("mic-icon");
+  let recognition = null;
+
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+
+    recognition.onstart = () => {
+      micIcon.className = "fa-solid fa-microphone-slash";
+      micBtn.style.color = "var(--gemini-pink)";
+      textarea.placeholder = "Listening...";
+    };
+
+    recognition.onresult = (event) => {
+      let transcript = "";
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        transcript += event.results[i][0].transcript;
+      }
+      textarea.value = transcript;
+      textarea.style.height = "24px";
+      textarea.style.height = Math.min(textarea.scrollHeight, 140) + "px";
+      sendBtn.disabled = !textarea.value.trim();
+    };
+
+    recognition.onend = () => {
+      micIcon.className = "fa-solid fa-microphone";
+      micBtn.style.color = "var(--text-secondary)";
+      textarea.placeholder = "Ask ArchWise...";
+    };
+
+    micBtn.onclick = () => {
+      try {
+        recognition.start();
+      } catch (e) {
+        recognition.stop();
+      }
+    };
+  } else {
+    micBtn.style.display = "none"; // Hide if browser doesn't support speech recognition
+  }
   document.getElementById("sidebar-toggle-btn").onclick = () => sidebar.classList.toggle("show");
   document.getElementById("mobile-menu-btn").onclick = () => sidebar.classList.toggle("show");
 </script>
