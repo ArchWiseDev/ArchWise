@@ -12534,3 +12534,11 @@ how to structure a paragraph :: A balanced analytical paragraph uses the **PEEL 
 3. **Explanation**: Detailed analysis connecting the evidence back to the point.
 4. **Link**: Concluding transition tying back to the central thesis.
 what is nuance in language :: **Nuance** is a subtle distinction or variation in tone, meaning, intention, or emotion that separates similar words (e.g., the difference between being *thrifty* versus *stingy*).
+what else can you do | what are your capabilities :: I can:
+- **Analyze and correct grammar** (`fix: <sentence>`).
+- **Define vocabulary** instantly from a 15,000-word lexicon (`define <word>`).
+- **Generate multi-paragraph essays** (`write an essay on <topic>`).
+- **Calculate mathematical operations** (`what is X plus Y`).
+- **Explain scientific, philosophical, and architectural systems**.
+tell me more about language :: Human language operates on nested layers: **phonology** (sound patterns), **morphology** (word building blocks), **syntax** (sentence architecture), **semantics** (literal meaning), and **pragmatics** (contextual intent).
+what makes a sentence clear :: Sentence clarity depends on placing the **subject and main action close together**, eliminating redundant modifiers, and ensuring modifiers point unambiguously to the correct noun.
