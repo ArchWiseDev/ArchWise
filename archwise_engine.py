@@ -89,29 +89,19 @@ def extract_subwords(word, min_n=3, max_n=5):
             subwords.append(w[i:i + n])
     return subwords
 
-class DuckHTMLSnippetParser(HTMLParser):
+class HTMLStripParser(HTMLParser):
     def __init__(self):
         super().__init__()
-        self.in_snippet = False
-        self.snippets = []
-        self.current_data = []
-
-    def handle_starttag(self, tag, attrs):
-        attr_dict = dict(attrs)
-        if tag == "a" and "result__snippet" in attr_dict.get("class", ""):
-            self.in_snippet = True
-            self.current_data = []
-
-    def handle_endtag(self, tag):
-        if tag == "a" and self.in_snippet:
-            self.in_snippet = False
-            text = "".join(self.current_data).strip()
-            if text:
-                self.snippets.append(text)
-
+        self.text_parts = []
     def handle_data(self, data):
-        if self.in_snippet:
-            self.current_data.append(data)
+        self.text_parts.append(data)
+    def get_text(self):
+        return "".join(self.text_parts).strip()
+
+def strip_tags(html):
+    p = HTMLStripParser()
+    p.feed(html)
+    return p.get_text()
 
 class ArchWiseEngine:
     def __init__(self, dim=32):
@@ -145,40 +135,42 @@ class ArchWiseEngine:
         return norm
 
     def _search_live_web(self, query):
-        clean_query = re.sub(r"[^a-zA-Z0-9\s]", " ", query).strip()
-        if not clean_query:
+        clean = re.sub(r"^(who is|what is|tell me about|how to|define|search for|lookup)\s+", "", query.strip(), flags=re.IGNORECASE)
+        clean = re.sub(r"[^a-zA-Z0-9\s]", " ", clean).strip()
+        if not clean:
             return None
 
-        # Tier 1: Fast Instant Answer API
+        headers = {"User-Agent": "ArchWiseAssistant/2.0 (Linux; Android Termux)"}
+
+        # 1. Primary: Wikipedia REST API (Direct factual summaries with zero API keys or limits)
         try:
-            url = f"https://api.duckduckgo.com/?q={urllib.parse.quote(clean_query)}&format=json&no_html=1&skip_disambig=1"
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 ArchWise/1.0"})
+            wiki_search_url = f"https://en.wikipedia.org/w/api.php?action=opensearch&search={urllib.parse.quote(clean)}&limit=1&namespace=0&format=json"
+            req = urllib.request.Request(wiki_search_url, headers=headers)
             with urllib.request.urlopen(req, timeout=4) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
-                abstract = data.get("AbstractText", "").strip()
-                source = data.get("AbstractSource", "Web Retrieval")
-                if abstract:
-                    return f"**Live Web Synthesis** ({source}):\n\n{abstract}"
-                
-                # Check related topics
-                related = data.get("RelatedTopics", [])
-                for topic in related:
-                    if isinstance(topic, dict) and "Text" in topic:
-                        return f"**Live Web Synthesis** (Verified Query):\n\n{topic['Text']}"
+                if len(data) >= 4 and data[1] and data[2]:
+                    title = data[1][0]
+                    summary = data[2][0]
+                    link = data[3][0]
+                    if summary and "may refer to:" not in summary:
+                        return f"**Live Knowledge Retrieval** ({title}):\n\n{summary}\n\n*Source*: {link}"
         except Exception:
             pass
 
-        # Tier 2: Public Search Parser Fallback
+        # 2. Secondary: DuckDuckGo Instant Answer API
         try:
-            url_html = f"https://html.duckduckgo.com/html/?q={urllib.parse.quote(clean_query)}"
-            req_html = urllib.request.Request(url_html, headers={"User-Agent": "Mozilla/5.0 ArchWise/1.0"})
-            with urllib.request.urlopen(req_html, timeout=5) as resp:
-                html_content = resp.read().decode("utf-8", errors="ignore")
-                parser = DuckHTMLSnippetParser()
-                parser.feed(html_content)
-                if parser.snippets:
-                    top_snippet = parser.snippets[0]
-                    return f"**Live Web Synthesis** (Online Search):\n\n{top_snippet}"
+            params = {"q": clean, "format": "json", "no_html": "1", "skip_disambig": "1"}
+            ddg_url = f"https://api.duckduckgo.com/?{urllib.parse.urlencode(params)}"
+            req = urllib.request.Request(ddg_url, headers=headers)
+            with urllib.request.urlopen(req, timeout=4) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                if data.get("AbstractText"):
+                    return f"**Web Summary ({data.get('AbstractSource', 'Web')})**:\n\n{data['AbstractText']}"
+                if data.get("Answer"):
+                    return f"**Direct Answer**:\n\n{data['Answer']}"
+                for item in data.get("RelatedTopics", []):
+                    if isinstance(item, dict) and item.get("Text"):
+                        return f"**Web Result**:\n\n{item['Text']}"
         except Exception:
             pass
 
@@ -187,10 +179,8 @@ class ArchWiseEngine:
     def _lookup_omnibus(self, normalized_prompt):
         m = re.search(r"\b(?:what\s+is|tell\s+me\s+about|about|define)\s+([a-zA-Z0-9\s]+)\b", normalized_prompt)
         target = m.group(1).strip() if m else normalized_prompt
-        
         if target in self.omnibus:
             return self.omnibus[target]
-
         for w in target.split():
             if w in self.omnibus:
                 return self.omnibus[w]
@@ -203,7 +193,6 @@ class ArchWiseEngine:
             if target in self.geography:
                 data = self.geography[target]
                 return f"The capital of **{data.get('name', target.title())}** is **{data.get('capital', 'Unknown')}**."
-
         for country_key, data in self.geography.items():
             if re.search(r"\b" + re.escape(country_key) + r"\b", normalized_prompt):
                 if "capital" in normalized_prompt:
@@ -221,14 +210,11 @@ class ArchWiseEngine:
     def _evaluate_expression(self, text):
         norm = text.lower().replace("what is", "").replace("calculate", "").replace("solve", "").strip()
         norm = norm.replace("times", "*").replace("multiplied by", "*").replace("divided by", "/").replace("plus", "+").replace("minus", "-").replace("^", "**")
-
         tokens = norm.split()
         converted = [str(WORD_NUMBERS[t]) if t in WORD_NUMBERS else t for t in tokens]
         expr = "".join(converted)
-
         if not re.search(r"[\d\+\-\*\/\^\%]", expr):
             return None
-
         clean_expr = re.sub(r"[^0-9\+\-\*\/\(\)\.\%\,\s_a-zA-Z]", "", expr).strip()
         try:
             tree = ast.parse(clean_expr, mode="eval")
@@ -254,7 +240,6 @@ class ArchWiseEngine:
         words = [w for w in clean.split() if w and w not in STOPWORDS]
         if not words:
             return [0.0] * self.dim
-
         doc_vec = [0.0] * self.dim
         for w in words:
             subwords = extract_subwords(w)
@@ -269,7 +254,6 @@ class ArchWiseEngine:
             if count > 0:
                 for d in range(self.dim):
                     doc_vec[d] += vec[d] / count
-
         norm = math.sqrt(sum(v * v for v in doc_vec))
         if norm > 0:
             doc_vec = [v / norm for v in doc_vec]
@@ -359,17 +343,17 @@ class ArchWiseEngine:
     def generate(self, prompt):
         norm = self._normalize_prompt(prompt)
 
-        # 1. Omnibus Knowledge Check
+        # 1. Local Omnibus Check
         omni_match = self._lookup_omnibus(norm)
         if omni_match:
             return self._spontaneous_emotion_wrapper(omni_match, prompt)
 
-        # 2. Geography Knowledge Lookup
+        # 2. Local Geography Lookup
         geo_match = self._lookup_geography(norm)
         if geo_match:
             return self._spontaneous_emotion_wrapper(geo_match, prompt)
 
-        # 3. Math KB & AST Calculation
+        # 3. Math AST & Formula Evaluation
         math_fact = self._lookup_math_kb(norm)
         if math_fact:
             return self._spontaneous_emotion_wrapper(math_fact, prompt)
@@ -396,7 +380,7 @@ class ArchWiseEngine:
         if best_score >= 0.52:
             return self._spontaneous_emotion_wrapper(self.responses[best_idx], prompt)
 
-        # 6. Autonomous Live Web Search Fallback
+        # 6. Live Web Search (Wikipedia REST API -> DuckDuckGo API)
         web_res = self._search_live_web(prompt)
         if web_res:
             return self._spontaneous_emotion_wrapper(web_res, prompt)
@@ -410,4 +394,4 @@ if __name__ == "__main__":
     engine = ArchWiseEngine(dim=32)
     engine.train("corpus.txt", "lexicon.json", "synsets.json", "math_knowledge.json", "geography.json", "omnibus.json")
     engine.save("model.json")
-    print("ArchWise Engine with Live Web Search compiled successfully.")
+    print("ArchWise Engine with Zero-Dependency Live Web Search compiled successfully.")
