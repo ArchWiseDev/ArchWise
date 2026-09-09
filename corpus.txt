@@ -12636,3 +12636,9 @@ how to optimize slow sql query :: Key database query optimization steps:
 3. Eliminate `SELECT *` to reduce I/O transfer and enable index-only scans.
 4. Replace correlated subqueries with `JOIN` or Common Table Expressions (CTEs).
 what is database sharding :: **Sharding** partitions a single dataset horizontally across multiple distinct database servers. Each shard contains identical table schemas but unique subsets of rows, routed by a partition key (such as hash or range).
+how does tls handshake work :: TLS 1.3 Handshake Process:
+1. **ClientHello**: Client transmits supported cipher suites and key shares.
+2. **ServerHello**: Server responds with its chosen cipher suite, certificate, and server key share.
+3. **Key Derivation**: Both peers derive symmetrical ephemeral session keys via Diffie-Hellman exchange.
+4. **Encrypted Transport**: Symmetric application data exchange begins with zero round-trip overhead on repeated sessions (0-RTT).
+what is salted hash in password storage :: Password salting appends a unique cryptographically random string (salt) to every password before running it through a slow, memory-hard key derivation function (such as Argon2id or bcrypt), neutralizing precomputed rainbow table and mass collision attacks.
