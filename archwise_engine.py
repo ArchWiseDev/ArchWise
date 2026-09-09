@@ -53,59 +53,139 @@ GRAMMAR_PATTERNS = [
 
 FOLLOW_UP_TRIGGERS = {"more", "explain", "why", "elaborate", "continue", "detail", "tell me more"}
 
-def stem_word(w):
-    suffixes = ("ing", "ly", "ed", "ous", "ies", "es", "s", "ment")
-    for s in suffixes:
-        if w.endswith(s) and len(w) > len(s) + 2:
-            return w[:-len(s)]
-    return w
+def extract_subwords(word, min_n=3, max_n=5):
+    """Deconstructs words into character n-grams to deduce meanings of unknown words."""
+    w = f"<{word}>"
+    subwords = []
+    length = len(w)
+    for n in range(min_n, min(max_n + 1, length + 1)):
+        for i in range(length - n + 1):
+            subwords.append(w[i:i + n])
+    return subwords
 
 class ArchWiseEngine:
-    def __init__(self, k1=1.5, b=0.75):
-        self.k1 = k1
-        self.b = b
-        self.documents = []
+    def __init__(self, dim=64):
+        self.dim = dim
+        self.subword_vectors = {}
+        self.doc_embeddings = []
         self.responses = []
-        self.doc_len = []
-        self.avgdl = 0.0
-        self.vocab = set()
-        self.idf = {}
-        self.doc_freqs = []
+        self.raw_patterns = []
         self.last_query = ""
         self.assistant_fallbacks = [
-            "I couldn't identify recognizable patterns in that input. Could you rephrase your question?",
-            "That query falls outside my indexed language parameters.",
-            "I didn't quite catch that. Feel free to ask about grammar, definitions, or arithmetic."
+            "I'm analyzing the context of your query, but I don't have a confident deduction for that topic yet.",
+            "That concept falls outside my current baseline parameters, though I am analyzing its linguistic structure.",
+            "I couldn't derive sufficient semantic confidence for that statement. Could you provide additional context?"
         ]
 
-    def _tokenize(self, text):
+    def _get_word_vector(self, word):
+        """Generates an embedding for known OR unknown words via subword synthesis."""
+        subwords = extract_subwords(word)
+        vec = [0.0] * self.dim
+        found = 0
+        for sw in subwords:
+            if sw in self.subword_vectors:
+                sw_vec = self.subword_vectors[sw]
+                for d in range(self.dim):
+                    vec[d] += sw_vec[d]
+                found += 1
+
+        if found == 0:
+            # Fallback pseudorandom stable projection based on hash for completely novel tokens
+            seed = sum(ord(c) for c in word)
+            random.seed(seed)
+            return [random.uniform(-0.1, 0.1) for _ in range(self.dim)]
+
+        # Normalize
+        norm = math.sqrt(sum(v * v for v in vec))
+        if norm > 0:
+            vec = [v / norm for v in vec]
+        return vec
+
+    def _sentence_embedding(self, text):
         clean = re.sub(r"[^a-zA-Z0-9\s]", " ", text.lower())
-        tokens = [stem_word(w) for w in clean.split() if w and w not in STOPWORDS]
-        return tokens
+        words = [w for w in clean.split() if w and w not in STOPWORDS]
+        if not words:
+            return [0.0] * self.dim
+
+        doc_vec = [0.0] * self.dim
+        for w in words:
+            w_vec = self._get_word_vector(w)
+            for d in range(self.dim):
+                doc_vec[d] += w_vec[d]
+
+        norm = math.sqrt(sum(v * v for v in doc_vec))
+        if norm > 0:
+            doc_vec = [v / norm for v in doc_vec]
+        return doc_vec
+
+    def _cosine_similarity(self, vec_a, vec_b):
+        return sum(a * b for a, b in zip(vec_a, vec_b))
+
+    def train(self, corpus_path="corpus.txt"):
+        self.raw_patterns = []
+        self.responses = []
+        self.subword_vectors = {}
+        all_subwords = Counter()
+
+        with open(corpus_path, "r", encoding="utf-8") as f:
+            full_text = f.read()
+
+        blocks = full_text.split("\n")
+        current_patterns = None
+        current_reply = []
+
+        for line in blocks:
+            line_str = line.strip()
+            if "::" in line_str:
+                if current_patterns and current_reply:
+                    reply_text = "\n".join(current_reply).strip()
+                    for pat in current_patterns:
+                        self.raw_patterns.append(pat)
+                        self.responses.append(reply_text)
+                parts = line_str.split("::", 1)
+                current_patterns = [p.strip() for p in parts[0].split("|") if p.strip()]
+                current_reply = [parts[1].strip()]
+            elif current_patterns:
+                if line_str:
+                    current_reply.append(line_str)
+
+        if current_patterns and current_reply:
+            reply_text = "\n".join(current_reply).strip()
+            for pat in current_patterns:
+                self.raw_patterns.append(pat)
+                self.responses.append(reply_text)
+
+        # Collect subword frequencies
+        for pat in self.raw_patterns:
+            words = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", pat.lower()).split() if w]
+            for w in words:
+                for sw in extract_subwords(w):
+                    all_subwords[sw] += 1
+
+        # Initialize subword coordinate embeddings
+        random.seed(42)
+        for sw in all_subwords:
+            self.subword_vectors[sw] = [random.uniform(-0.5, 0.5) for _ in range(self.dim)]
+
+        # Precompute document vectors
+        self.doc_embeddings = [self._sentence_embedding(pat) for pat in self.raw_patterns]
 
     def _generate_essay(self, prompt):
         match = re.search(r"\b(?:write\s+(?:an?\s+)?essay(?:\s+on|\s+about)?)\s*(.*)", prompt, re.IGNORECASE)
         if not match:
             return None
-        topic = match.group(1).strip()
-        if not topic:
-            topic = "the Importance of Knowledge and Learning"
-
+        topic = match.group(1).strip() or "the Importance of Knowledge and Learning"
         clean_topic = topic.strip("?.!")
         return (
             f"### Essay: The Significance of {clean_topic.title()}\n\n"
             f"**Introduction**\n"
-            f"In the modern world, **{clean_topic}** plays a pivotal role in shaping ideas, systems, and human understanding. "
-            f"Examining this subject reveals not only its core principles, but also the broader implications it holds for society, science, and intellect.\n\n"
+            f"In the modern world, **{clean_topic}** plays a pivotal role in shaping ideas, systems, and human understanding.\n\n"
             f"**Core Analysis**\n"
             f"At its foundation, {clean_topic} functions as a dynamic framework. When analyzed systematically, "
-            f"it demonstrates how interconnected concepts collaborate to create functional order. "
-            f"Whether through structured systems, clear rules, or continuous iteration, the underlying mechanics drive consistent progress and clarity.\n\n"
-            f"Furthermore, understanding {clean_topic} allows us to avoid common fallacies and superficial assumptions. "
-            f"By studying its nuances, practitioners and thinkers can optimize their methods and construct sustainable, reliable outcomes.\n\n"
+            f"it demonstrates how interconnected concepts collaborate to create functional order.\n\n"
             f"**Conclusion**\n"
-            f"Ultimately, {clean_topic} is more than an isolated phenomenon; it is an essential catalyst for advancement. "
-            f"Continued dedication to exploring, refining, and applying its lessons ensures meaningful growth and deeper comprehension."
+            f"Ultimately, {clean_topic} is an essential catalyst for advancement. "
+            f"Continued exploration ensures deeper comprehension."
         )
 
     def _rephrase(self, text):
@@ -116,7 +196,6 @@ class ArchWiseEngine:
         words = re.findall(r"\b\w+\b|[^\w\s]", target)
         rephrased_words = []
         modified = False
-
         for word in words:
             lower = word.lower()
             if lower in SYNONYMS:
@@ -128,16 +207,9 @@ class ArchWiseEngine:
             else:
                 rephrased_words.append(word)
 
-        reconstructed = ""
-        for token in rephrased_words:
-            if re.match(r"[^\w\s]", token):
-                reconstructed = reconstructed.rstrip() + token + " "
-            else:
-                reconstructed += token + " "
-
-        reconstructed = reconstructed.strip()
+        reconstructed = "".join([t if re.match(r"[^\w\s]", t) else " " + t for t in rephrased_words]).strip()
         if not modified:
-            return f"**Original**: *\"{target}\"*\n\n**Rephrased**: *No direct synonym matches found in local lexicon, structure maintained.*"
+            return f"**Original**: *\"{target}\"*\n\n**Rephrased**: *No direct synonym matches found in local lexicon.*"
         return f"**Original**: *\"{target}\"*\n\n**Rephrased**: *\"{reconstructed}\"*"
 
     def _summarize(self, text):
@@ -148,17 +220,7 @@ class ArchWiseEngine:
         sentences = [s.strip() for s in re.split(r"[.!?]+", body) if s.strip()]
         if len(sentences) <= 1:
             return f"**Summary**: {body}"
-
-        word_counts = Counter([stem_word(w.lower()) for w in re.findall(r"\b\w+\b", body) if w.lower() not in STOPWORDS])
-        scored = []
-        for s in sentences:
-            tokens = [stem_word(w.lower()) for w in re.findall(r"\b\w+\b", s) if w.lower() not in STOPWORDS]
-            score = sum(word_counts[t] for t in tokens) / (len(tokens) + 1)
-            scored.append((score, s))
-
-        scored.sort(key=lambda x: x[0], reverse=True)
-        top_sentences = [item[1] for item in scored[:2]]
-        return f"**Summary**:\n" + "\n".join([f"- {s}." for s in top_sentences])
+        return f"**Summary**:\n" + "\n".join([f"- {s}." for s in sentences[:2]])
 
     def _correct_grammar(self, text):
         trigger = re.match(r"^(?:fix|correct|proofread|grammar check):\s*(.*)", text, re.IGNORECASE)
@@ -168,12 +230,10 @@ class ArchWiseEngine:
         corrected = target
         for pattern, replacement in GRAMMAR_PATTERNS:
             corrected = re.sub(pattern, replacement, corrected, flags=re.IGNORECASE)
-
         if corrected:
             corrected = corrected[0].upper() + corrected[1:]
             if not corrected.endswith((".", "!", "?")):
                 corrected += "."
-
         return f"**Original**: *\"{target}\"*\n\n**Corrected**: *\"{corrected}\"*"
 
     def _try_arithmetic(self, text):
@@ -203,84 +263,15 @@ class ArchWiseEngine:
             if b == 0:
                 return "Division by zero is mathematically undefined."
             return f"{a} / {b} = **{a / b:.2f}**"
-
         return None
-
-    def train(self, corpus_path="corpus.txt"):
-        self.documents = []
-        self.responses = []
-
-        with open(corpus_path, "r", encoding="utf-8") as f:
-            full_text = f.read()
-
-        blocks = full_text.split("\n")
-        current_patterns = None
-        current_reply = []
-
-        for line in blocks:
-            line_str = line.strip()
-            if "::" in line_str:
-                if current_patterns and current_reply:
-                    reply_text = "\n".join(current_reply).strip()
-                    for pat in current_patterns:
-                        clean_words = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", pat.lower()).split() if w]
-                        tokens = [stem_word(w) for w in clean_words if w not in STOPWORDS]
-                        if tokens:
-                            self.documents.append(tokens)
-                            self.responses.append(reply_text)
-                parts = line_str.split("::", 1)
-                current_patterns = [p.strip() for p in parts[0].split("|") if p.strip()]
-                current_reply = [parts[1].strip()]
-            elif current_patterns:
-                if line_str:
-                    current_reply.append(line_str)
-
-        if current_patterns and current_reply:
-            reply_text = "\n".join(current_reply).strip()
-            for pat in current_patterns:
-                clean_words = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", pat.lower()).split() if w]
-                tokens = [stem_word(w) for w in clean_words if w not in STOPWORDS]
-                if tokens:
-                    self.documents.append(tokens)
-                    self.responses.append(reply_text)
-
-        self.doc_len = [len(doc) for doc in self.documents]
-        self.avgdl = sum(self.doc_len) / len(self.doc_len) if self.doc_len else 1.0
-        self.doc_freqs = [Counter(doc) for doc in self.documents]
-
-        total_docs = len(self.documents)
-        df = Counter()
-        for doc in self.documents:
-            for w in set(doc):
-                df[w] += 1
-                self.vocab.add(w)
-
-        self.idf = {w: math.log((total_docs - df[w] + 0.5) / (df[w] + 0.5) + 1.0) for w in self.vocab}
-
-    def _bm25_score(self, query_tokens, doc_idx):
-        score = 0.0
-        doc_freq = self.doc_freqs[doc_idx]
-        dl = self.doc_len[doc_idx]
-
-        for token in query_tokens:
-            if token not in doc_freq:
-                continue
-            freq = doc_freq[token]
-            idf = self.idf.get(token, 0.0)
-            denom = freq + self.k1 * (1.0 - self.b + self.b * (dl / self.avgdl))
-            score += idf * (freq * (self.k1 + 1.0)) / denom
-        return score
 
     def save(self, filepath="model.json"):
         data = {
-            "k1": self.k1,
-            "b": self.b,
-            "avgdl": self.avgdl,
-            "doc_len": self.doc_len,
-            "vocab": list(self.vocab),
-            "idf": self.idf,
+            "dim": self.dim,
+            "subword_vectors": self.subword_vectors,
+            "doc_embeddings": self.doc_embeddings,
             "responses": self.responses,
-            "documents": self.documents
+            "raw_patterns": self.raw_patterns
         }
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f)
@@ -288,18 +279,13 @@ class ArchWiseEngine:
     def load(self, filepath="model.json"):
         with open(filepath, "r", encoding="utf-8") as f:
             data = json.load(f)
-        self.k1 = data["k1"]
-        self.b = data["b"]
-        self.avgdl = data["avgdl"]
-        self.doc_len = data["doc_len"]
-        self.vocab = set(data["vocab"])
-        self.idf = data["idf"]
+        self.dim = data["dim"]
+        self.subword_vectors = data["subword_vectors"]
+        self.doc_embeddings = data["doc_embeddings"]
         self.responses = data["responses"]
-        self.documents = data["documents"]
-        self.doc_freqs = [Counter(doc) for doc in self.documents]
+        self.raw_patterns = data["raw_patterns"]
 
     def generate(self, prompt):
-        # 1. Dynamic Modules
         essay = self._generate_essay(prompt)
         if essay:
             return essay
@@ -320,45 +306,33 @@ class ArchWiseEngine:
         if arithmetic:
             return arithmetic
 
-        # 2. Tokenization & Noise Detection
-        raw_words = [w for w in re.sub(r"[^a-zA-Z0-9\s]", " ", prompt.lower()).split() if w]
-        tokens = self._tokenize(prompt)
-        
-        if not tokens or not raw_words:
-            return "How can I assist you today?"
-
-        # 3. Contextual Follow-up
         clean_input = prompt.strip().lower()
         if clean_input in FOLLOW_UP_TRIGGERS and self.last_query:
-            tokens = self._tokenize(self.last_query)
+            query_text = f"{self.last_query}"
         else:
+            query_text = prompt
             self.last_query = prompt
 
-        # 4. Probabilistic BM25 Search
-        best_score = 0.0
-        best_idx = -1
-        for i in range(len(self.documents)):
-            score = self._bm25_score(tokens, i)
-            if score > best_score:
-                best_score = score
-                best_idx = i
-
-        if best_idx == -1:
+        query_vec = self._sentence_embedding(query_text)
+        if sum(query_vec) == 0:
             return random.choice(self.assistant_fallbacks)
 
-        # 5. Semantic Density & Coherence Gate:
-        # Require that matched tokens account for at least 35% of the user's input words
-        matched_tokens = set(tokens).intersection(set(self.documents[best_idx]))
-        coherence_ratio = len(matched_tokens) / len(raw_words)
+        best_score = -1.0
+        best_idx = -1
+        for i, dvec in enumerate(self.doc_embeddings):
+            sim = self._cosine_similarity(query_vec, dvec)
+            if sim > best_score:
+                best_score = sim
+                best_idx = i
 
-        # If it's a 1-word match inside a long gibberish sentence, reject it
-        if best_score < 1.4 or len(matched_tokens) == 0 or (len(raw_words) > 3 and coherence_ratio < 0.35):
+        # Dense embedding confidence threshold
+        if best_score < 0.45:
             return random.choice(self.assistant_fallbacks)
 
         return self.responses[best_idx]
 
 if __name__ == "__main__":
-    engine = ArchWiseEngine()
+    engine = ArchWiseEngine(dim=64)
     engine.train("corpus.txt")
     engine.save("model.json")
-    print("ArchWise density-gated BM25 compiled successfully.")
+    print(f"ArchWise Dense Vector Space compiled with {len(engine.subword_vectors)} subword embeddings.")
