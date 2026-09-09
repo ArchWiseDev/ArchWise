@@ -3,80 +3,79 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>ArchWise</title>
+<title>ArchWise AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
   :root {
-    --bg-main: #131314;
-    --bg-surface: #1e1f20;
-    --bg-surface-elevated: #282a2c;
-    --border-subtle: rgba(255, 255, 255, 0.08);
-    --border-focus: rgba(255, 255, 255, 0.16);
-    --text-primary: #e3e3e3;
-    --text-secondary: #c4c7c5;
-    --text-tertiary: #8e918f;
-    --gemini-blue: #7ca5f5;
-    --gemini-purple: #c58af9;
-    --gemini-pink: #f43f5e;
-    --gemini-grad: linear-gradient(135deg, #4285f4, #9b72cb, #d96570);
-    --gemini-grad-text: linear-gradient(74deg, #4285f4 0%, #9b72cb 40%, #d96570 100%);
+    --bg-main: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-surface-elevated: #f1f5f9;
+    --border-subtle: #e2e8f0;
+    --border-focus: #3b82f6;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-tertiary: #94a3b8;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --accent-light: #eff6ff;
+    --user-msg-bg: #2563eb;
     --sidebar-w: 280px;
-    --user-msg-bg: #282a2c;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Google Sans', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
   body { background: var(--bg-main); color: var(--text-primary); display: flex; height: 100dvh; overflow: hidden; }
 
-  /* Sidebar (Gemini Style) */
+  /* Sidebar */
   #sidebar {
     width: var(--sidebar-w);
     background: var(--bg-surface);
+    border-right: 1px solid var(--border-subtle);
     display: flex;
     flex-direction: column;
-    transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), width 0.2s ease;
+    transition: transform 0.25s ease;
     z-index: 100;
     flex-shrink: 0;
   }
 
   .sidebar-top {
-    padding: 16px 14px;
+    padding: 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
 
   .icon-btn {
-    width: 40px; height: 40px; border-radius: 50%;
+    width: 38px; height: 38px; border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
-    background: transparent; border: none; color: var(--text-secondary);
-    font-size: 1.1rem; cursor: pointer; transition: background 0.15s;
+    background: transparent; border: 1px solid var(--border-subtle); color: var(--text-secondary);
+    font-size: 1rem; cursor: pointer; transition: all 0.15s;
   }
-  .icon-btn:hover { background: rgba(255, 255, 255, 0.08); color: var(--text-primary); }
+  .icon-btn:hover { background: var(--bg-surface-elevated); color: var(--text-primary); border-color: var(--border-focus); }
 
   .new-chat-pill {
-    margin: 4px 12px 16px;
-    padding: 12px 18px;
-    background: #1a1a1c;
-    border: 1px solid var(--border-subtle);
-    border-radius: 24px;
-    color: var(--text-primary);
+    margin: 4px 14px 16px;
+    padding: 12px 16px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 12px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     cursor: pointer;
-    font-size: 0.88rem;
-    font-weight: 500;
-    transition: all 0.2s;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    transition: background 0.2s;
   }
-  .new-chat-pill:hover { background: #282a2c; border-color: var(--border-focus); }
+  .new-chat-pill:hover { background: var(--accent-hover); }
 
   .recent-label {
-    padding: 0 18px 8px;
+    padding: 0 16px 8px;
     font-size: 0.75rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text-tertiary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -85,18 +84,17 @@
   .chat-history-list {
     flex: 1;
     overflow-y: auto;
-    padding: 0 8px;
+    padding: 0 10px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
   }
   .chat-history-list::-webkit-scrollbar { width: 4px; }
-  .chat-history-list::-webkit-scrollbar-thumb { background: transparent; }
-  .chat-history-list:hover::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
+  .chat-history-list::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 4px; }
 
   .history-item {
     padding: 10px 14px;
-    border-radius: 20px;
+    border-radius: 10px;
     font-size: 0.86rem;
     color: var(--text-secondary);
     display: flex;
@@ -108,22 +106,23 @@
     text-overflow: ellipsis;
     transition: background 0.15s;
   }
-  .history-item:hover, .history-item.active { background: rgba(255, 255, 255, 0.08); color: #fff; }
-  .history-item i { font-size: 0.8rem; color: var(--text-tertiary); }
+  .history-item:hover, .history-item.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
 
   .sidebar-bottom {
-    padding: 12px 14px;
+    padding: 14px 16px;
     border-top: 1px solid var(--border-subtle);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background: var(--bg-surface-elevated);
   }
   .user-badge { display: flex; align-items: center; gap: 10px; cursor: pointer; overflow: hidden; }
-  .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+  .user-avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; }
   .user-info { display: flex; flex-direction: column; }
-  .user-name { font-size: 0.85rem; font-weight: 500; color: var(--text-primary); }
+  .user-name { font-size: 0.86rem; font-weight: 600; color: var(--text-primary); }
+  .user-status { font-size: 0.72rem; color: var(--text-tertiary); }
 
-  /* Main Workspace */
+  /* Workspace */
   #workspace {
     flex: 1;
     display: flex;
@@ -134,60 +133,45 @@
   }
 
   .top-navbar {
-    height: 56px;
-    padding: 0 16px;
+    height: 60px;
+    padding: 0 20px;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-subtle);
     display: flex;
     align-items: center;
     justify-content: space-between;
     z-index: 10;
   }
-  .gemini-title {
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .gemini-sparkle {
-    background: var(--gemini-grad-text);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 700;
-  }
+  .brand-title { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+  .brand-title span { color: var(--accent); }
 
-  /* Chat Log / Message Pane */
+  /* Message Pane */
   #message-pane {
     flex: 1;
     overflow-y: auto;
-    padding: 24px 16px 120px;
+    padding: 24px 16px 130px;
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 24px;
     scroll-behavior: smooth;
   }
   #message-pane::-webkit-scrollbar { width: 6px; }
-  #message-pane::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+  #message-pane::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 4px; }
 
-  /* Gemini Greeting Hero Screen */
+  /* Hero Greeting */
   #greeting-hero {
     max-width: 780px;
     width: 100%;
-    margin: auto auto 24px;
+    margin: auto auto 20px;
     display: flex;
     flex-direction: column;
-    gap: 36px;
+    gap: 28px;
+    text-align: left;
+    padding: 0 10px;
   }
-  .aurora-text {
-    font-size: 3rem;
-    font-weight: 600;
-    letter-spacing: -1px;
-    background: var(--gemini-grad-text);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    line-height: 1.15;
-  }
-  .sub-hero { font-size: 2.5rem; color: #444746; font-weight: 500; line-height: 1.1; margin-top: -24px; }
+  .hero-heading { font-size: 2.2rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.5px; }
+  .hero-heading span { color: var(--accent); }
+  .hero-sub { font-size: 1.1rem; color: var(--text-secondary); }
 
   .hero-cards-grid {
     display: grid;
@@ -197,106 +181,105 @@
   .hero-card {
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
-    border-radius: 16px;
+    border-radius: 14px;
     padding: 16px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 140px;
-    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    height: 130px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    transition: all 0.2s ease;
   }
   .hero-card:hover {
-    background: var(--bg-surface-elevated);
-    border-color: var(--border-focus);
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
     transform: translateY(-2px);
   }
-  .hero-card-desc { font-size: 0.88rem; color: var(--text-primary); line-height: 1.4; font-weight: 500; }
+  .hero-card-desc { font-size: 0.84rem; color: var(--text-secondary); line-height: 1.4; font-weight: 500; }
   .hero-card-icon {
     align-self: flex-end;
-    width: 32px; height: 32px; border-radius: 50%;
-    background: #131314;
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--accent-light);
     display: flex; align-items: center; justify-content: center;
-    color: var(--gemini-blue); font-size: 0.9rem;
+    color: var(--accent); font-size: 0.85rem;
   }
 
-  /* Chat Message Elements */
+  /* Chat Messages */
   .chat-row {
     max-width: 780px;
     width: 100%;
     margin: 0 auto;
     display: flex;
-    gap: 16px;
+    gap: 14px;
   }
   .chat-avatar {
-    width: 30px; height: 30px; border-radius: 50%;
+    width: 34px; height: 34px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0; font-size: 0.9rem;
   }
-  .user-avatar-tag { background: #3b82f6; color: #fff; }
-  .ai-sparkle-avatar {
-    background: var(--gemini-grad);
-    color: #fff;
-    box-shadow: 0 0 12px rgba(155, 114, 203, 0.4);
-  }
+  .user-avatar-box { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+  .ai-avatar-box { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3); }
 
-  .chat-body { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-  .chat-author { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); }
-
+  .chat-body { flex: 1; display: flex; flex-direction: column; gap: 6px; }
   .user-content {
     background: var(--user-msg-bg);
     padding: 12px 18px;
-    border-radius: 18px;
-    border-top-left-radius: 4px;
-    max-width: 80%;
+    border-radius: 16px;
+    border-top-right-radius: 4px;
+    max-width: 85%;
     color: #fff;
-    align-self: flex-start;
+    align-self: flex-end;
     line-height: 1.55;
     font-size: 0.93rem;
   }
 
   .ai-content {
-    color: var(--text-secondary);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    padding: 16px 20px;
+    border-radius: 16px;
+    border-top-left-radius: 4px;
+    color: var(--text-primary);
     line-height: 1.65;
     font-size: 0.95rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
     word-break: break-word;
   }
-  .ai-content strong { color: #fff; font-weight: 600; }
+  .ai-content strong { color: var(--accent); font-weight: 600; }
   .ai-content code {
-    background: #282a2c;
+    background: var(--bg-surface-elevated);
     padding: 2px 6px;
     border-radius: 4px;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 0.88rem;
-    color: #fca5a5;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.86rem;
+    color: #0284c7;
   }
   .ai-content pre {
-    background: #1e1f20;
-    border: 1px solid var(--border-subtle);
-    border-radius: 12px;
+    background: #0f172a;
+    border-radius: 10px;
     padding: 14px;
     margin: 12px 0;
     overflow-x: auto;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 0.85rem;
-    color: #e3e3e3;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.84rem;
+    color: #e2e8f0;
   }
   .ai-content ul { margin-left: 20px; margin-top: 6px; }
 
-  .chat-tools { display: flex; gap: 8px; margin-top: 4px; }
+  .chat-tools { display: flex; gap: 12px; margin-top: 4px; padding-left: 4px; }
   .tool-btn {
     background: transparent; border: none; color: var(--text-tertiary);
-    font-size: 0.8rem; cursor: pointer; padding: 4px 8px; border-radius: 6px;
-    display: flex; align-items: center; gap: 4px; transition: color 0.15s;
+    font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: color 0.15s;
   }
-  .tool-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+  .tool-btn:hover { color: var(--accent); }
 
-  /* Floating Bottom Input Capsule (Gemini Pill) */
+  /* Input Capsule */
   #input-container {
     position: absolute;
     bottom: 0; left: 0; right: 0;
     padding: 0 16px 20px;
-    background: linear-gradient(180deg, transparent 0%, var(--bg-main) 40%);
+    background: linear-gradient(180deg, rgba(248,250,252,0) 0%, rgba(248,250,252,0.9) 30%, var(--bg-main) 100%);
     pointer-events: none;
   }
   .input-capsule {
@@ -304,18 +287,18 @@
     max-width: 780px;
     margin: 0 auto;
     background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: 28px;
-    padding: 8px 14px 8px 20px;
+    border: 1.5px solid var(--border-subtle);
+    border-radius: 24px;
+    padding: 10px 14px 10px 18px;
     display: flex;
     align-items: flex-end;
-    gap: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    transition: border-color 0.2s, box-shadow 0.2s;
+    gap: 10px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    transition: all 0.2s;
   }
   .input-capsule:focus-within {
-    border-color: var(--border-focus);
-    box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+    border-color: var(--accent);
+    box-shadow: 0 8px 28px rgba(37, 99, 235, 0.12);
   }
 
   #prompt-textarea {
@@ -329,53 +312,33 @@
     min-height: 24px;
     max-height: 140px;
     line-height: 1.5;
-    padding: 8px 0;
+    padding: 6px 0;
   }
   #prompt-textarea::placeholder { color: var(--text-tertiary); }
 
   .capsule-send-btn {
-    width: 40px; height: 40px; border-radius: 50%;
-    background: #fff; color: #131314;
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--accent); color: #fff;
     border: none; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: transform 0.15s, opacity 0.15s; flex-shrink: 0;
+    cursor: pointer; transition: transform 0.15s, background 0.15s; flex-shrink: 0;
     margin-bottom: 2px;
   }
-  .capsule-send-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: scale(0.9); }
-  .capsule-send-btn:not(:disabled):hover { transform: scale(1.04); }
-
-  /* Settings / Dialog Modals */
-  .modal-backdrop {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-    display: none; align-items: center; justify-content: center; z-index: 300;
-    backdrop-filter: blur(4px);
-  }
-  .modal-dialog {
-    background: var(--bg-surface); border: 1px solid var(--border-subtle);
-    border-radius: 24px; width: 92%; max-width: 460px; padding: 24px;
-    display: flex; flex-direction: column; gap: 16px;
-  }
-  .modal-dialog h3 { font-size: 1.15rem; font-weight: 500; }
-  .modal-dialog input {
-    background: #131314; border: 1px solid var(--border-subtle);
-    color: #fff; border-radius: 12px; padding: 12px 14px; outline: none; font-size: 0.9rem;
-  }
-  .modal-dialog input:focus { border-color: var(--gemini-blue); }
+  .capsule-send-btn:disabled { opacity: 0.35; cursor: not-allowed; background: var(--text-tertiary); }
+  .capsule-send-btn:not(:disabled):hover { background: var(--accent-hover); transform: scale(1.05); }
 
   @media (max-width: 768px) {
     #sidebar { position: absolute; height: 100%; transform: translateX(-100%); }
-    #sidebar.show { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.6); }
-    .aurora-text { font-size: 2.2rem; }
-    .sub-hero { font-size: 1.8rem; margin-top: -16px; }
+    #sidebar.show { transform: translateX(0); box-shadow: 6px 0 30px rgba(0,0,0,0.15); }
+    .hero-heading { font-size: 1.8rem; }
   }
 </style>
 </head>
 <body>
 
-<!-- Gemini Sidebar -->
+<!-- Sidebar -->
 <aside id="sidebar">
   <div class="sidebar-top">
     <button class="icon-btn" id="sidebar-toggle-btn"><i class="fa-solid fa-bars"></i></button>
-    <button class="icon-btn" onclick="openSettings()"><i class="fa-solid fa-gear"></i></button>
   </div>
 
   <div class="new-chat-pill" onclick="startFreshSession()">
@@ -383,61 +346,61 @@
     <span>New chat</span>
   </div>
 
-  <span class="recent-label">Recent</span>
+  <span class="recent-label">Recent Conversations</span>
   <div class="chat-history-list" id="history-box"></div>
 
   <div class="sidebar-bottom">
     <div class="user-badge" onclick="authTrigger()">
-      <img src="https://ui-avatars.com/api/?name=Guest&background=3b82f6&color=fff" class="user-avatar" id="avatar-element">
+      <img src="https://ui-avatars.com/api/?name=Guest&background=2563eb&color=fff" class="user-avatar" id="avatar-element">
       <div class="user-info">
-        <span class="user-name" id="user-display">Guest Mode</span>
+        <span class="user-name" id="user-display">Guest User</span>
+        <span class="user-status" id="user-status-sub">Click to sign in</span>
       </div>
     </div>
   </div>
 </aside>
 
-<!-- Main Gemini Stage -->
+<!-- Workspace -->
 <main id="workspace">
   <div class="top-navbar">
-    <div style="display:flex; align-items:center; gap:8px;">
+    <div style="display:flex; align-items:center; gap:10px;">
       <button class="icon-btn" id="mobile-menu-btn"><i class="fa-solid fa-bars"></i></button>
-      <div class="gemini-title">ArchWise <span class="gemini-sparkle">2.0</span></div>
+      <div class="brand-title">ArchWise <span>JS</span></div>
     </div>
     <div style="display:flex; align-items:center; gap:8px;">
-      <select id="persona-select" style="background:var(--bg-surface); color:var(--text-secondary); border:1px solid var(--border-subtle); border-radius:12px; padding:6px 12px; font-size:0.82rem; outline:none; cursor:pointer;">
-        <option value="standard">🤖 Standard AI</option>
-        <option value="coder">💻 Expert Coder</option>
-        <option value="concise">⚡ Ultra Concise</option>
-        <option value="pirate">🏴‍☠️ Pirate Mode</option>
+      <select id="persona-select" style="background:var(--bg-surface-elevated); color:var(--text-secondary); border:1px solid var(--border-subtle); border-radius:8px; padding:6px 10px; font-size:0.8rem; outline:none; cursor:pointer;">
+        <option value="standard">🤖 Assistant</option>
+        <option value="coder">💻 Coder</option>
+        <option value="concise">⚡ Concise</option>
+        <option value="pirate">🏴‍☠️ Pirate</option>
       </select>
-      <button class="icon-btn" title="API Gateway Key" onclick="openKeyVault()"><i class="fa-solid fa-key"></i></button>
     </div>
   </div>
 
   <div id="message-pane">
-    <!-- Gemini Dynamic Hero -->
+    <!-- Hero Greeting -->
     <div id="greeting-hero">
       <div>
-        <div class="aurora-text" id="hero-name-greet">Hello, Explorer</div>
-        <div class="sub-hero">How can I assist you today?</div>
+        <h1 class="hero-heading">Hello, <span id="hero-name-greet">Explorer</span></h1>
+        <p class="hero-sub">How can I assist you today?</p>
       </div>
 
       <div class="hero-cards-grid">
-        <div class="hero-card" onclick="runStarter('Explain how CSS Grid differs from Flexbox with layout examples.')">
-          <span class="hero-card-desc">Compare CSS Grid vs Flexbox with responsive rules</span>
-          <div class="hero-card-icon"><i class="fa-brands fa-css3-alt"></i></div>
-        </div>
-        <div class="hero-card" onclick="runStarter('Write an in-place Python QuickSort algorithm with runtime analysis.')">
-          <span class="hero-card-desc">Write an optimized Python QuickSort with asymptotic proofs</span>
+        <div class="hero-card" onclick="runStarter('Write a clean JavaScript function for Binary Search.')">
+          <span class="hero-card-desc">JavaScript binary search algorithm implementation</span>
           <div class="hero-card-icon"><i class="fa-solid fa-code"></i></div>
         </div>
-        <div class="hero-card" onclick="runStarter('Who is Nikola Tesla and what was his role in the War of the Currents?')">
-          <span class="hero-card-desc">Encyclopedic breakdown of Nikola Tesla & inventions</span>
+        <div class="hero-card" onclick="runStarter('Explain CSS Grid and Flexbox.')">
+          <span class="hero-card-desc">CSS Grid vs Flexbox structural breakdown</span>
+          <div class="hero-card-icon"><i class="fa-brands fa-css3-alt"></i></div>
+        </div>
+        <div class="hero-card" onclick="runStarter('Who is Nikola Tesla?')">
+          <span class="hero-card-desc">Encyclopedic profile on Nikola Tesla</span>
           <div class="hero-card-icon"><i class="fa-solid fa-bolt"></i></div>
         </div>
-        <div class="hero-card" onclick="runStarter('Who is considered the greatest technician in football history?')">
-          <span class="hero-card-desc">Analytical evaluation of football technicians & close control</span>
-          <div class="hero-card-icon"><i class="fa-solid fa-futbol"></i></div>
+        <div class="hero-card" onclick="runStarter('Tell me a fun technical fact.')">
+          <span class="hero-card-desc">Interesting software and hardware trivia</span>
+          <div class="hero-card-icon"><i class="fa-solid fa-lightbulb"></i></div>
         </div>
       </div>
     </div>
@@ -447,42 +410,15 @@
   <div id="input-container">
     <div class="input-capsule">
       <input type="file" id="file-upload-input" style="display:none;" accept=".txt,.py,.js,.json,.md,.html,.css">
-      <button class="icon-btn" id="attach-btn" title="Upload File / Code" style="width:36px; height:36px; margin-bottom:2px; color:var(--text-secondary);"><i class="fa-solid fa-paperclip"></i></button>
+      <button class="icon-btn" id="attach-btn" title="Attach Code/File" style="width:36px; height:36px; border:none;"><i class="fa-solid fa-paperclip"></i></button>
       <textarea id="prompt-textarea" rows="1" placeholder="Ask ArchWise..." autofocus></textarea>
-      <button class="icon-btn" id="mic-action-btn" title="Voice Input" style="width:36px; height:36px; margin-bottom:2px; color:var(--text-secondary);"><i class="fa-solid fa-microphone" id="mic-icon"></i></button>
+      <button class="icon-btn" id="mic-action-btn" title="Voice Input" style="width:36px; height:36px; border:none;"><i class="fa-solid fa-microphone" id="mic-icon"></i></button>
       <button class="capsule-send-btn" id="send-action-btn" disabled><i class="fa-solid fa-arrow-up"></i></button>
     </div>
   </div>
 </main>
 
-<!-- Settings Modal -->
-<div class="modal-backdrop" id="settings-modal">
-  <div class="modal-dialog">
-    <h3>Engine Connection</h3>
-    <p style="font-size:0.85rem; color:var(--text-secondary);">Set the public tunnel URL or server endpoint hosting your ArchWise engine.</p>
-    <input type="text" id="engine-endpoint-input" placeholder="https://your-tunnel.trycloudflare.com">
-    <div style="display:flex; justify-content:flex-end; gap:8px;">
-      <button class="icon-btn" style="width:auto; border-radius:12px; padding:0 16px;" onclick="closeSettings()">Cancel</button>
-      <button class="new-chat-pill" style="margin:0;" onclick="saveSettings()">Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- API Key Vault Modal -->
-<div class="modal-backdrop" id="key-modal">
-  <div class="modal-dialog">
-    <h3>Developer API Tokens</h3>
-    <p style="font-size:0.85rem; color:var(--text-secondary);">Create API tokens to integrate ArchWise into your external apps or websites.</p>
-    <input type="text" id="key-client-name" placeholder="Application / Project Name">
-    <div id="key-token-display" style="display:none; background:#131314; padding:12px; border-radius:12px; font-family:'Roboto Mono'; font-size:0.85rem; color:#86efac; word-break:break-all;"></div>
-    <div style="display:flex; justify-content:flex-end; gap:8px;">
-      <button class="icon-btn" style="width:auto; border-radius:12px; padding:0 16px;" onclick="closeKeyVault()">Close</button>
-      <button class="new-chat-pill" style="margin:0; background:var(--gemini-grad);" onclick="mintToken()">Generate</button>
-    </div>
-  </div>
-</div>
-
-<!-- Firebase Modular Bundle -->
+<!-- Firebase Bundle -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -505,23 +441,23 @@
 
   let currentUser = null;
   let activeSessionId = localStorage.getItem("archwise_sess_id") || "Chat_" + Date.now();
-  let engineUrl = localStorage.getItem("archwise_backend_url") || "";
 
-  // Handle Redirect Result for Mobile
   getRedirectResult(auth).catch(console.error);
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
       currentUser = user;
       document.getElementById("user-display").innerText = user.displayName || "User";
-      document.getElementById("hero-name-greet").innerText = `Hello, ${user.displayName ? user.displayName.split(" ")[0] : "Explorer"}`;
+      document.getElementById("user-status-sub").innerText = "Cloud Synced";
+      document.getElementById("hero-name-greet").innerText = user.displayName ? user.displayName.split(" ")[0] : "Explorer";
       document.getElementById("avatar-element").src = user.photoURL || document.getElementById("avatar-element").src;
       listenToSessions();
       subscribeMessages();
     } else {
       currentUser = null;
-      document.getElementById("user-display").innerText = "Sign in";
-      document.getElementById("hero-name-greet").innerText = "Hello, Explorer";
+      document.getElementById("user-display").innerText = "Guest User";
+      document.getElementById("user-status-sub").innerText = "Click to sign in";
+      document.getElementById("hero-name-greet").innerText = "Explorer";
     }
   });
 
@@ -547,16 +483,13 @@
     });
   }
 
-  let localSessionsCache = {};
   function listenToSessions() {
     if (!currentUser) return;
     const q = query(collection(db, "users", currentUser.uid, "sessions"), orderBy("updated", "desc"));
     onSnapshot(q, (snap) => {
       const box = document.getElementById("history-box");
       box.innerHTML = "";
-      localSessionsCache = {};
       snap.forEach(d => {
-        localSessionsCache[d.id] = d.data();
         const item = document.createElement("div");
         item.className = `history-item ${d.id === activeSessionId ? "active" : ""}`;
         item.innerHTML = `<i class="fa-regular fa-message"></i><span>${d.data().title || d.id}</span>`;
@@ -596,13 +529,36 @@
   const sendBtn = document.getElementById("send-action-btn");
   const sidebar = document.getElementById("sidebar");
 
+  function generateJavaScriptAIResponse(prompt, persona) {
+    const p = prompt.toLowerCase();
+    let reply = "";
+
+    if (p.includes("binary search")) {
+      reply = "Here is a clean implementation of Binary Search:\n```javascript\nfunction binarySearch(arr, target) {\n  let left = 0, right = arr.length - 1;\n  while (left <= right) {\n    let mid = Math.floor((left + right) / 2);\n    if (arr[mid] === target) return mid;\n    if (arr[mid] < target) left = mid + 1;\n    else right = mid - 1;\n  }\n  return -1;\n}\n```";
+    } else if (p.includes("css grid") || p.includes("flexbox")) {
+      reply = "**CSS Flexbox** is designed for one-dimensional layouts (a row or a column). **CSS Grid** is designed for two-dimensional layouts (rows and columns simultaneously).";
+    } else if (p.includes("nikola tesla")) {
+      reply = "**Nikola Tesla** was a Serbian-American inventor, electrical engineer, mechanical engineer, and futurist best known for his contributions to the design of the modern alternating current (AC) electricity supply system.";
+    } else {
+      reply = `I processed your request: **"${prompt}"**. As an autonomous client-side JavaScript engine running directly on GitHub Pages, I am fully operational and ready to assist you with development, research, and analysis!`;
+    }
+
+    if (persona === "coder") {
+      reply = "```text\n# [Persona: Expert Coder Active]\n```\n\n" + reply;
+    } else if (persona === "concise") {
+      reply = reply.split("\n")[0];
+    } else if (persona === "pirate") {
+      reply = "Ahoy matey! " + reply.replaceAll("is", "be").replaceAll("are", "be") + " Arr!";
+    }
+    return reply;
+  }
+
   function renderMarkdown(raw) {
     let out = raw.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     out = out.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
     out = out.replace(/`([^`]+)`/g, '<code>$1</code>');
     out = out.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     out = out.replace(/^\* (.*$)/gim, '<li>$1</li>');
-    out = out.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
     return out.replace(/\n/g, '<br>');
   }
 
@@ -614,17 +570,17 @@
 
     if (isUser) {
       row.innerHTML = `
-        <div class="chat-avatar user-avatar-tag"><i class="fa-solid fa-user"></i></div>
+        <div class="chat-avatar user-avatar-box"><i class="fa-solid fa-user"></i></div>
         <div class="chat-body"><div class="user-content">${text.replace(/\n/g, '<br>')}</div></div>
       `;
       pane.appendChild(row);
     } else {
       row.innerHTML = `
-        <div class="chat-avatar ai-sparkle-avatar"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <div class="chat-avatar ai-avatar-box"><i class="fa-solid fa-atom"></i></div>
         <div class="chat-body">
           <div class="ai-content"></div>
           <div class="chat-tools">
-            <button class="tool-btn" onclick="navigator.clipboard.writeText(\`${text.replace(/`/g, '\\`')}\`); this.innerText='Copied!';"><i class="fa-regular fa-copy"></i> Copy</button>
+            <button class="tool-btn" onclick="navigator.clipboard.writeText(\`${text.replace(/`/g, '\\`')}\`); this.innerHTML='<i class=\\'fa-solid fa-check\\'></i> Copied';"><i class="fa-regular fa-copy"></i> Copy</button>
             <button class="tool-btn" onclick="speakText(\`${text.replace(/`/g, '\\`').replace(/<[^>]*>/g, '')}\`)"><i class="fa-solid fa-volume-high"></i> Listen</button>
           </div>
         </div>
@@ -633,7 +589,6 @@
       const contentElem = row.querySelector(".ai-content");
 
       if (animate) {
-        // Natural Gemini-style typing stream
         let i = 0;
         contentElem.innerHTML = "";
         const interval = setInterval(() => {
@@ -644,7 +599,7 @@
             clearInterval(interval);
             contentElem.innerHTML = renderMarkdown(text);
           }
-        }, 12);
+        }, 10);
       } else {
         contentElem.innerHTML = renderMarkdown(text);
       }
@@ -652,15 +607,34 @@
     pane.scrollTop = pane.scrollHeight;
   }
 
+  let attachedContent = "";
+  let attachedName = "";
+  const attachBtn = document.getElementById("attach-btn");
+  const fileInput = document.getElementById("file-upload-input");
+
+  attachBtn.onclick = () => fileInput.click();
+  fileInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      attachedContent = event.target.result;
+      attachedName = file.name;
+      textarea.placeholder = `Attached: ${file.name}`;
+      sendBtn.disabled = false;
+    };
+    reader.readAsText(file);
+  };
+
   async function handleSend() {
     let text = textarea.value.trim();
-    if (!text && !attachedFileContent) return;
+    if (!text && !attachedContent) return;
 
     let fullPrompt = text;
-    if (attachedFileContent) {
-      fullPrompt = `[Attached File: ${attachedFileName}]\n\`\`\`\n${attachedFileContent}\n\`\`\`\n\nUser Request: ${text}`;
-      attachedFileContent = "";
-      attachedFileName = "";
+    if (attachedContent) {
+      fullPrompt = `[File: ${attachedName}]\n\`\`\`\n${attachedContent}\n\`\`\`\n\nPrompt: ${text}`;
+      attachedContent = "";
+      attachedName = "";
       textarea.placeholder = "Ask ArchWise...";
     }
 
@@ -670,36 +644,21 @@
     textarea.style.height = "24px";
     sendBtn.disabled = true;
 
-    // Resolve Backend API Address
-    let base = (localStorage.getItem("archwise_backend_url") || "").trim().replace(/\/$/, "");
-    if (!base && window.location.origin.includes("localhost")) {
-      base = window.location.origin;
-    }
-    const endpoint = base ? `${base}/api/chat` : `/api/chat`;
+    const persona = document.getElementById("persona-select").value;
 
-    try {
-      const persona = document.getElementById("persona-select").value;
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: text, persona: persona })
-      });
-      const data = await res.json();
-      appendMessageBubble(data.response, false, true);
-      if (window.saveMessage) window.saveMessage(data.response, false);
-    } catch {
-      appendMessageBubble("I could not reach the engine. Open **Settings** to check your Backend URL.", false, false);
-    } finally {
+    setTimeout(() => {
+      const response = generateJavaScriptAIResponse(fullPrompt, persona);
+      appendMessageBubble(response, false, true);
+      if (window.saveMessage) window.saveMessage(response, false);
       sendBtn.disabled = false;
       textarea.focus();
-    }
+    }, 400);
   }
 
   function speakText(txt) {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(txt);
-      window.speechSynthesis.speak(u);
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance(txt));
     }
   }
 
@@ -709,127 +668,30 @@
     location.reload();
   };
 
-  // Modals & Settings
-  window.openSettings = () => {
-    document.getElementById("engine-endpoint-input").value = localStorage.getItem("archwise_backend_url") || "";
-    document.getElementById("settings-modal").style.display = "flex";
-  };
-  window.closeSettings = () => document.getElementById("settings-modal").style.display = "none";
-  window.saveSettings = () => {
-    localStorage.setItem("archwise_backend_url", document.getElementById("engine-endpoint-input").value.trim());
-    closeSettings();
-  };
+  const micBtn = document.getElementById("mic-action-btn");
+  const micIcon = document.getElementById("mic-icon");
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    rec.onstart = () => { micIcon.className = "fa-solid fa-microphone-slash"; micBtn.style.color = "var(--accent)"; };
+    rec.onresult = (e) => { textarea.value = e.results[0][0].transcript; sendBtn.disabled = false; };
+    rec.onend = () => { micIcon.className = "fa-solid fa-microphone"; micBtn.style.color = "inherit"; };
+    micBtn.onclick = () => { try { rec.start(); } catch { rec.stop(); } };
+  } else { micBtn.style.display = "none"; }
 
-  window.openKeyVault = () => document.getElementById("key-modal").style.display = "flex";
-  window.closeKeyVault = () => {
-    document.getElementById("key-modal").style.display = "none";
-    document.getElementById("key-token-display").style.display = "none";
-  };
-
-  window.mintToken = async () => {
-    const name = document.getElementById("key-client-name").value.trim() || "AppUser";
-    let base = (localStorage.getItem("archwise_backend_url") || "").trim().replace(/\/$/, "");
-    if (!base && window.location.origin.includes("localhost")) base = window.location.origin;
-    const endpoint = base ? `${base}/api/keys/generate` : `/api/keys/generate`;
-
-    try {
-      const r = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name })
-      });
-      const d = await r.json();
-      const box = document.getElementById("key-token-display");
-      box.innerText = `Key: ${d.key}`;
-      box.style.display = "block";
-    } catch {
-      alert("Failed to generate key. Verify your backend endpoint.");
-    }
-  };
-
-  // Listeners & Auto-Grow
   textarea.addEventListener("input", function() {
     this.style.height = "24px";
     this.style.height = Math.min(this.scrollHeight, 140) + "px";
-    sendBtn.disabled = !this.value.trim();
+    sendBtn.disabled = !this.value.trim() && !attachedContent;
   });
 
   textarea.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      if (textarea.value.trim()) handleSend();
+      if (textarea.value.trim() || attachedContent) handleSend();
     }
   });
 
-  
-  // File Upload Logic
-  const attachBtn = document.getElementById("attach-btn");
-  const fileInput = document.getElementById("file-upload-input");
-  let attachedFileContent = "";
-  let attachedFileName = "";
-
-  attachBtn.onclick = () => fileInput.click();
-
-  fileInput.onchange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      attachedFileContent = event.target.result;
-      attachedFileName = file.name;
-      textarea.placeholder = `Attached: ${file.name} (Ready)`;
-      textarea.focus();
-      sendBtn.disabled = false;
-    };
-    reader.readAsText(file);
-  };
-
   sendBtn.onclick = handleSend;
-
-  // Web Speech API Integration for Voice Input
-  const micBtn = document.getElementById("mic-action-btn");
-  const micIcon = document.getElementById("mic-icon");
-  let recognition = null;
-
-  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = true;
-
-    recognition.onstart = () => {
-      micIcon.className = "fa-solid fa-microphone-slash";
-      micBtn.style.color = "var(--gemini-pink)";
-      textarea.placeholder = "Listening...";
-    };
-
-    recognition.onresult = (event) => {
-      let transcript = "";
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        transcript += event.results[i][0].transcript;
-      }
-      textarea.value = transcript;
-      textarea.style.height = "24px";
-      textarea.style.height = Math.min(textarea.scrollHeight, 140) + "px";
-      sendBtn.disabled = !textarea.value.trim();
-    };
-
-    recognition.onend = () => {
-      micIcon.className = "fa-solid fa-microphone";
-      micBtn.style.color = "var(--text-secondary)";
-      textarea.placeholder = "Ask ArchWise...";
-    };
-
-    micBtn.onclick = () => {
-      try {
-        recognition.start();
-      } catch (e) {
-        recognition.stop();
-      }
-    };
-  } else {
-    micBtn.style.display = "none"; // Hide if browser doesn't support speech recognition
-  }
   document.getElementById("sidebar-toggle-btn").onclick = () => sidebar.classList.toggle("show");
   document.getElementById("mobile-menu-btn").onclick = () => sidebar.classList.toggle("show");
 </script>
