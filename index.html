@@ -302,7 +302,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getFirestore, collection, addDoc, doc, setDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -357,11 +357,18 @@
     }
   });
 
+  // Check result if returned from mobile Google redirect
+  getRedirectResult(auth).catch(err => {
+    if (err && err.code !== "auth/null-user") {
+      console.error("Redirect Auth Error:", err);
+    }
+  });
+
   authBtn.addEventListener("click", () => {
     if (currentUser) {
       signOut(auth);
     } else {
-      signInWithPopup(auth, provider).catch(err => alert("Login Error: " + err.message));
+      signInWithRedirect(auth, provider);
     }
   });
 
