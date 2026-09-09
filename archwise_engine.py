@@ -4,6 +4,9 @@ import json
 import random
 import ast
 import operator
+import urllib.request
+import urllib.parse
+from html.parser import HTMLParser
 from collections import Counter
 
 WORD_NUMBERS = {
@@ -86,6 +89,30 @@ def extract_subwords(word, min_n=3, max_n=5):
             subwords.append(w[i:i + n])
     return subwords
 
+class DuckHTMLSnippetParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.in_snippet = False
+        self.snippets = []
+        self.current_data = []
+
+    def handle_starttag(self, tag, attrs):
+        attr_dict = dict(attrs)
+        if tag == "a" and "result__snippet" in attr_dict.get("class", ""):
+            self.in_snippet = True
+            self.current_data = []
+
+    def handle_endtag(self, tag):
+        if tag == "a" and self.in_snippet:
+            self.in_snippet = False
+            text = "".join(self.current_data).strip()
+            if text:
+                self.snippets.append(text)
+
+    def handle_data(self, data):
+        if self.in_snippet:
+            self.current_data.append(data)
+
 class ArchWiseEngine:
     def __init__(self, dim=32):
         self.dim = dim
@@ -117,6 +144,46 @@ class ArchWiseEngine:
         norm = re.sub(r"\bwhere['’]?s\b", "where is", norm)
         return norm
 
+    def _search_live_web(self, query):
+        clean_query = re.sub(r"[^a-zA-Z0-9\s]", " ", query).strip()
+        if not clean_query:
+            return None
+
+        # Tier 1: Fast Instant Answer API
+        try:
+            url = f"https://api.duckduckgo.com/?q={urllib.parse.quote(clean_query)}&format=json&no_html=1&skip_disambig=1"
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 ArchWise/1.0"})
+            with urllib.request.urlopen(req, timeout=4) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                abstract = data.get("AbstractText", "").strip()
+                source = data.get("AbstractSource", "Web Retrieval")
+                if abstract:
+                    return f"**Live Web Synthesis** ({source}):\n\n{abstract}"
+                
+                # Check related topics
+                related = data.get("RelatedTopics", [])
+                for topic in related:
+                    if isinstance(topic, dict) and "Text" in topic:
+                        return f"**Live Web Synthesis** (Verified Query):\n\n{topic['Text']}"
+        except Exception:
+            pass
+
+        # Tier 2: Public Search Parser Fallback
+        try:
+            url_html = f"https://html.duckduckgo.com/html/?q={urllib.parse.quote(clean_query)}"
+            req_html = urllib.request.Request(url_html, headers={"User-Agent": "Mozilla/5.0 ArchWise/1.0"})
+            with urllib.request.urlopen(req_html, timeout=5) as resp:
+                html_content = resp.read().decode("utf-8", errors="ignore")
+                parser = DuckHTMLSnippetParser()
+                parser.feed(html_content)
+                if parser.snippets:
+                    top_snippet = parser.snippets[0]
+                    return f"**Live Web Synthesis** (Online Search):\n\n{top_snippet}"
+        except Exception:
+            pass
+
+        return None
+
     def _lookup_omnibus(self, normalized_prompt):
         m = re.search(r"\b(?:what\s+is|tell\s+me\s+about|about|define)\s+([a-zA-Z0-9\s]+)\b", normalized_prompt)
         target = m.group(1).strip() if m else normalized_prompt
@@ -124,8 +191,7 @@ class ArchWiseEngine:
         if target in self.omnibus:
             return self.omnibus[target]
 
-        words = target.split()
-        for w in words:
+        for w in target.split():
             if w in self.omnibus:
                 return self.omnibus[w]
         return None
@@ -293,17 +359,17 @@ class ArchWiseEngine:
     def generate(self, prompt):
         norm = self._normalize_prompt(prompt)
 
-        # 1. Omnibus Knowledge Check (Periodic Elements, Astronomy, Linux, Currencies)
+        # 1. Omnibus Knowledge Check
         omni_match = self._lookup_omnibus(norm)
         if omni_match:
             return self._spontaneous_emotion_wrapper(omni_match, prompt)
 
-        # 2. Geography Knowledge Base Lookup
+        # 2. Geography Knowledge Lookup
         geo_match = self._lookup_geography(norm)
         if geo_match:
             return self._spontaneous_emotion_wrapper(geo_match, prompt)
 
-        # 3. Math Formula & AST Calculation
+        # 3. Math KB & AST Calculation
         math_fact = self._lookup_math_kb(norm)
         if math_fact:
             return self._spontaneous_emotion_wrapper(math_fact, prompt)
@@ -317,7 +383,7 @@ class ArchWiseEngine:
         if lex_match:
             return self._spontaneous_emotion_wrapper(lex_match, prompt)
 
-        # 5. Dense Subword Vector Match
+        # 5. Local Subword Vector Match
         query_vec = self._sentence_embedding(norm)
         best_score = -1.0
         best_idx = -1
@@ -330,13 +396,18 @@ class ArchWiseEngine:
         if best_score >= 0.52:
             return self._spontaneous_emotion_wrapper(self.responses[best_idx], prompt)
 
+        # 6. Autonomous Live Web Search Fallback
+        web_res = self._search_live_web(prompt)
+        if web_res:
+            return self._spontaneous_emotion_wrapper(web_res, prompt)
+
         return (
-            f"I analyzed your inquiry about **'{prompt}'**, but I don't have enough verified data indexed on this topic yet. "
-            f"Try asking about chemical elements, astronomy, Linux commands, world geography, math, or definitions."
+            f"I analyzed your inquiry about **'{prompt}'**, but could not find matching local records or live web results. "
+            f"Try checking network connectivity or rephrasing your question."
         )
 
 if __name__ == "__main__":
     engine = ArchWiseEngine(dim=32)
     engine.train("corpus.txt", "lexicon.json", "synsets.json", "math_knowledge.json", "geography.json", "omnibus.json")
     engine.save("model.json")
-    print("ArchWise Omnibus Engine compiled successfully.")
+    print("ArchWise Engine with Live Web Search compiled successfully.")
